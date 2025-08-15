@@ -43,11 +43,9 @@ export default function Pricing() {
     // Simulate processing delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Show success and redirect to dashboard
-    alert(`🎉 Successfully subscribed to ${planId.charAt(0).toUpperCase() + planId.slice(1)} plan!\n\nYour 90-day grace period starts now. Check your dashboard to see your subscription status.`);
-    
+   
     setLoadingPlan(null);
-    router.push('/dashboard');
+    router.push('/user/progress');
   };
 
   return (
