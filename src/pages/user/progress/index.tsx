@@ -268,7 +268,7 @@ export default function TimelinePage() {
         console.error("Failed to fetch step status:", error)
         router.push("/pricing")
       } finally {
-        setTimeout(() => setLoading(false), 200) // ✅ stop loader when done
+        setTimeout(() => setLoading(false), 2000) // ✅ stop loader when done
       }
     }
 

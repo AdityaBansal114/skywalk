@@ -17,16 +17,34 @@ export default async function POST(
             return res.status(400).json({error: "Unauthenticated"});
         }
 
+        const user = await db.user.findUnique({
+            where:{clerkId}
+        })
 
-        await db.user.create({
-            data:{
-                fullName,
-                email,
-                phone,
-                address,
-                clerkId
-            }
-        });
+        if(user){
+            await db.user.update({
+                where:{clerkId},
+                data:{
+                    email,
+                    phone,
+                    address,
+                    fullName
+                }
+            })
+        }
+
+        else{
+                await db.user.create({
+                data:{
+                    fullName,
+                    email,
+                    phone,
+                    address,
+                    clerkId
+                }
+            });
+
+        }
 
         await db.progress.update({
             where:{clerkId},
