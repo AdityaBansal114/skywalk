@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server'
 import { db } from "@/lib/db";
 
-export async function name(
+export async function mySubs(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
@@ -17,6 +17,9 @@ export async function name(
             const user = await db.user.findUnique({
                 where: {
                     clerkId
+                },
+                select:{
+                    subscriptions: true
                 }
             })
 
@@ -24,7 +27,7 @@ export async function name(
                 return res.status(200).json({ subscriptions: [] })
             }
 
-            return res.status(200).json({ subscriptions: user.subscriptions })
+            return res.status(200).json({ subscriptions: user.subscriptions})
         }
         catch {
             console.log("Error in the GET api/user/mySubscriptions")

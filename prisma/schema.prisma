@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -17,30 +16,48 @@ datasource db {
 model User{
   id                   String                  @id @default(uuid())
   fullName             String
+  email                String
   phone                String
   address              String                  @db.Text
   clerkId              String                  @unique
   subscriptions        Subscription[]
+  payments             Payment[]
 }
 
 model Subscription{
   id                      String                @id @default(uuid())
   subscriptionType        String
-  buyDate                 DateTime              @default(now())
+  status                  String                @default("active")
+  buyDate                 DateTime              @default(now())      
   serviceStartTime        DateTime
   serviceEndTime          DateTime
   agreementURL            String
   userId                  String
-  user                    User      @relation(fields: [userId],references: [id])
+  user                    User                   @relation(fields: [userId],references: [id])
   payments                Payment[]
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
 }
 
 
 model Payment{
   id                      String                @id @default(uuid())
-  paymentDate             DateTime
   transactionId           String
   subscriptionId          String
-  subscription            Subscription  @relation(fields: [subscriptionId],references: [id])
+  subscription            Subscription          @relation(fields: [subscriptionId],references: [id])
+  userId                  String
+  user                    User                  @relation(fields: [userId], references: [id])
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+}
+
+model Progress{
+  id                      String                @id @default(uuid())
+  clerkId                 String                @unique
+  currentStep             Int                   @default(1)
+  subscriptionType        String
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  agreementURL            String?
 }
 

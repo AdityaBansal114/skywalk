@@ -66,54 +66,7 @@ export const DEMO_SERVICE_REQUESTS = [
   }
 ];
 
-export const SUBSCRIPTION_PLANS = [
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: 49,
-    frequency: 12,
-    features: [
-      'Annual furniture touch-up service',
-      '90-day grace period protection',
-      'Basic wood and leather care',
-      'Email support',
-      'Damage assessment'
-    ],
-    stripePrice: 'price_basic_annual'
-  },
-  {
-    id: 'standard',
-    name: 'Standard',
-    price: 89,
-    frequency: 6,
-    features: [
-      'Bi-annual furniture touch-up service',
-      '90-day grace period protection',
-      'Advanced wood, leather & fabric care',
-      'Priority email support',
-      'Damage assessment & minor repairs',
-      'Protective treatments included'
-    ],
-    stripePrice: 'price_standard_biannual'
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: 149,
-    frequency: 3,
-    features: [
-      'Quarterly furniture touch-up service',
-      '90-day grace period protection',
-      'Complete furniture care (all materials)',
-      'Phone & email support',
-      'Damage assessment & repairs',
-      'Protective treatments & conditioning',
-      'Emergency touch-up service',
-      '10% discount on add-on services'
-    ],
-    stripePrice: 'price_premium_quarterly'
-  }
-];
+
 
 export const isEligibleForService = () => {
   // For demo, user is always eligible

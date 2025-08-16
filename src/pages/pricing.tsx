@@ -4,7 +4,60 @@ import { useRouter } from 'next/router';
 import Layout from '@/components/layout/Layout';
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { SUBSCRIPTION_PLANS } from '@/lib/demoData';
+
+import { usePostApi } from '@/lib/apiCallerClient';
+
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
+
+const SUBSCRIPTION_PLANS = [
+  {
+    id: 'basic',
+    name: 'Basic',
+    price: 49,
+    frequency: 12,
+    features: [
+      'Annual furniture touch-up service',
+      '90-day grace period protection',
+      'Basic wood and leather care',
+      'Email support',
+      'Damage assessment'
+    ],
+    stripePrice: 'price_basic_annual'
+  },
+  {
+    id: 'standard',
+    name: 'Standard',
+    price: 89,
+    frequency: 6,
+    features: [
+      'Bi-annual furniture touch-up service',
+      '90-day grace period protection',
+      'Advanced wood, leather & fabric care',
+      'Priority email support',
+      'Damage assessment & minor repairs',
+      'Protective treatments included'
+    ],
+    stripePrice: 'price_standard_biannual'
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    price: 149,
+    frequency: 3,
+    features: [
+      'Quarterly furniture touch-up service',
+      '90-day grace period protection',
+      'Complete furniture care (all materials)',
+      'Phone & email support',
+      'Damage assessment & repairs',
+      'Protective treatments & conditioning',
+      'Emergency touch-up service',
+      '10% discount on add-on services'
+    ],
+    stripePrice: 'price_premium_quarterly'
+  }
+];
 
 const addOnServices = [
   {
@@ -33,19 +86,27 @@ export default function Pricing() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const user = true;
   const router = useRouter();
+  const postApi = usePostApi();
 
   const handlePlanSelection = async (planId: string) => {
 
 
     // Demo: Simulate subscription process
     setLoadingPlan(planId);
-    
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-   
-    setLoadingPlan(null);
-    router.push('/user/progress');
+    console.log(planId)
+    const res = await postApi(`${BACKEND_URL}/api/progress/set`,{
+      subscriptionType: planId
+    })
+
+    if(res.status == 200){
+      setLoadingPlan(null);
+      router.push('/user/progress');
+    }
+      else{
+        setLoadingPlan(null);
+        router.push('/'); 
+      }
+      
   };
 
   return (
