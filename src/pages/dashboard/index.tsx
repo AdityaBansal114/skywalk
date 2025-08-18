@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useUser } from '@clerk/nextjs';
 import Layout from '@/components/layout/Layout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
@@ -7,7 +8,7 @@ import { DEMO_USER_PROFILE, DEMO_SERVICE_REQUESTS, isEligibleForService } from '
 import { format } from 'date-fns';
 
 export default function Dashboard() {
-  const { user, userId, loading: authLoading } = useAuth();
+  const { user, isSignedIn, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [showServiceModal, setShowServiceModal] = useState(false);
@@ -21,16 +22,16 @@ export default function Dashboard() {
   const serviceRequests = DEMO_SERVICE_REQUESTS;
 
   useEffect(() => {
-    if (!authLoading && !userId) {
-      router.push('/auth/login?redirect=/dashboard');
+    if (isLoaded && !isSignedIn) {
+      router.push('/sign-in?redirect=/dashboard');
       return;
     }
 
     // Simulate loading
-    if (userId) {
+    if (isSignedIn) {
       setTimeout(() => setLoading(false), 1000);
     }
-  }, [userId, authLoading, router]);
+  }, [isSignedIn, isLoaded, router]);
 
   const handleServiceRequest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +64,7 @@ export default function Dashboard() {
     }
   };
 
-  if (authLoading || loading) {
+  if (!isLoaded || loading) {
     return (
       <Layout title="Dashboard - Furniture Wellness">
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -105,9 +106,9 @@ export default function Dashboard() {
             <p className="text-gray-600">
               Manage your furniture care subscription and schedule services
             </p>
-            {userId && (
+            {isSignedIn && (
               <p className="text-sm text-gray-500 mt-1">
-                User ID: {userId}
+                User ID: {user?.id}
               </p>
             )}
           </div>

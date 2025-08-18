@@ -230,7 +230,7 @@ export default function TimelinePage() {
       description: "Digital signature and service agreement generation",
       icon: FileSignature,
       status: "upcoming",
-      link: "/user/form",
+      link: "/subscribe",
     },
     {
       id: 3,
