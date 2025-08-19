@@ -14,46 +14,57 @@ const SUBSCRIPTION_PLANS = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 49,
-    frequency: 12,
+    price: 19,
+    frequency: 1,
     features: [
       'Annual furniture touch-up service',
       '90-day grace period protection',
-      'Basic wood and leather care',
-      'Email support',
-      'Damage assessment'
+      'upto 3 pieces',
+      '$100 for each extra peice',
+      'Damage assessment',
+      'Ideal for light home usage, minimal wear'
     ],
     stripePrice: 'price_basic_annual'
   },
   {
     id: 'standard',
     name: 'Standard',
-    price: 89,
-    frequency: 6,
+    price: 29,
+    frequency: 2,
     features: [
       'Bi-annual furniture touch-up service',
       '90-day grace period protection',
-      'Advanced wood, leather & fabric care',
-      'Priority email support',
-      'Damage assessment & minor repairs',
-      'Protective treatments included'
+      'upto 5 pieces',
+      '$100 for each extra peice',
+      'Idea for moderate use households'
     ],
     stripePrice: 'price_standard_biannual'
   },
   {
     id: 'premium',
     name: 'Premium',
-    price: 149,
+    price: 49,
     frequency: 3,
     features: [
-      'Quarterly furniture touch-up service',
+      'Quarterly (or 1 on-demand/year + 2 scheduled)',
       '90-day grace period protection',
-      'Complete furniture care (all materials)',
-      'Phone & email support',
-      'Damage assessment & repairs',
-      'Protective treatments & conditioning',
-      'Emergency touch-up service',
-      '10% discount on add-on services'
+      'upto 8 pieces',
+      '$100 for each extra peice',
+      'Ideal for High-use furniture & busy households',
+    ],
+    stripePrice: 'price_premium_quarterly'
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 149,
+    frequency: 2,
+    features: [
+      'Bi-annual serive',
+      '90-day grace period protection',
+      'upto 20 peices',
+      '$100 for each extra peice',
+      'Ideal for Restaurants, hotels, offices and commercial spaces',
     ],
     stripePrice: 'price_premium_quarterly'
   }
@@ -92,9 +103,11 @@ export default function Pricing() {
 
 
     // Demo: Simulate subscription process
-    setLoadingPlan(planId);
-    console.log(planId)
-    const res = await postApi(`${BACKEND_URL}/api/progress/set`,{
+    
+    try{
+      setLoadingPlan(planId);
+      console.log(planId)
+      const res = await postApi(`${BACKEND_URL}/api/progress/set`,{
       subscriptionType: planId
     })
 
@@ -102,11 +115,11 @@ export default function Pricing() {
       setLoadingPlan(null);
       router.push('/user/progress');
     }
-      else{
+    }
+    catch {
         setLoadingPlan(null);
-        router.push('/'); 
-      }
-      
+        router.push('/sign-in'); 
+    }
   };
 
   return (
@@ -144,7 +157,7 @@ export default function Pricing() {
       {/* Pricing Plans */}
       <section className="py-16 bg-white">
         <div className="container-width section-padding">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-10xl mx-auto">
             {SUBSCRIPTION_PLANS.map((plan) => (
               <div
                 key={plan.id}
@@ -166,10 +179,10 @@ export default function Pricing() {
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                   <div className="mb-4">
                     <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
-                    <span className="text-gray-500">/year</span>
+                    <span className="text-gray-500">/month</span>
                   </div>
                   <p className="text-gray-600 mb-6">
-                    Service every {plan.frequency} months
+                   {plan.frequency == 1? `Shedule a visit once a year` : `Schedule visits upto ${plan.frequency} times per year`}
                   </p>
                 </div>
 
@@ -276,7 +289,7 @@ export default function Pricing() {
       </section>
 
       {/* Add-on Services */}
-      <section className="py-16 bg-white">
+      {/* <section className="py-16 bg-white">
         <div className="container-width section-padding">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -311,7 +324,7 @@ export default function Pricing() {
             </p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="py-16 bg-primary-600">

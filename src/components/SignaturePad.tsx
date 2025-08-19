@@ -51,7 +51,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold text-gray-700">Draw Your Signature</h3>
         <div className="flex gap-2">
-          <Button
+          {/* <Button
             type="button"
             variant="outline"
             size="sm"
@@ -60,7 +60,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           >
             <RotateCcw className="w-4 h-4" />
             Rotate
-          </Button>
+          </Button> */}
           <Button
             type="button"
             variant="outline"

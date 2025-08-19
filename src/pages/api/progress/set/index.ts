@@ -33,6 +33,7 @@ export default async function POST(req: NextApiRequest, res: NextApiResponse) {
                     currentStep: 1
                 },
             });
+       
         } else if (existing.subscriptionType !== subscriptionType) {
             // Update only if subscriptionType is different
             await db.progress.update({
@@ -43,9 +44,11 @@ export default async function POST(req: NextApiRequest, res: NextApiResponse) {
                 },
             });
 
-            return res.status(200).json({ message: "successs" });
 
         }
+
+        return res.status(200).json({ message: "successs" });
+
     } catch (error: any) {
         console.error("Error in /api/progress:", error);
         return res.status(500).json({ error: "Internal server error" })
