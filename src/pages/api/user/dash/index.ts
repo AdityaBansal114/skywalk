@@ -17,20 +17,26 @@ export default async function mySubs(
             const user = await db.user.findUnique({
                 where: {
                     clerkId
+                },
+                include: {
+                    subscriptions: {
+                        orderBy: { buyDate: 'desc' }
+                    }
                 }
             })
 
             if (!user) {
-                return res.status(200).json({ subscriptions: [] })
+                return res.status(200).json({ user: null, canBookService: false })
             }
 
-            // function call to get serivability status
-            const servicable = false;
+            // Check if user can book service based on active subscriptions
+            const activeSubscription = user.subscriptions.find(sub => sub.status === 'active');
+            const canBookService = !!activeSubscription;
 
-            return res.status(200).json({ user: user, service: servicable})
+            return res.status(200).json({ user: user, canBookService: canBookService })
         }
-        catch {
-            console.log("Error in the GET api/user/mySubscriptions")
+        catch (error) {
+            console.log("Error in the GET api/user/dash:", error)
             return res.status(500).json({ error: "Internal server error" })
         }
     }

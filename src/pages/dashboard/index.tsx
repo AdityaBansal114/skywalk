@@ -4,22 +4,47 @@ import { useUser } from '@clerk/nextjs';
 import Layout from '@/components/layout/Layout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
-import { DEMO_USER_PROFILE, DEMO_SERVICE_REQUESTS, isEligibleForService } from '@/lib/demoData';
+import DashboardSkeleton from '@/components/ui/DashboardSkeleton';
+import { useGetApi } from '@/lib/apiCallerClient';
 import { format } from 'date-fns';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
+
+
+interface DashboardData {
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    address: string;
+    clerkId: string;
+    subscriptions: Array<{
+      id: string;
+      subscriptionType: string;
+      status: string;
+      buyDate: string;
+      serviceStartTime: string;
+      serviceEndTime: string;
+      agreementURL: string;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+  } | null;
+  canBookService: boolean;
+}
 
 export default function Dashboard() {
   const { user, isSignedIn, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [serviceForm, setServiceForm] = useState({
     description: '',
     serviceType: 'subscription_touch_up' as const
   });
 
-  // Demo data
-  const userProfile = DEMO_USER_PROFILE;
-  const serviceRequests = DEMO_SERVICE_REQUESTS;
+  const getApi = useGetApi();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -27,11 +52,34 @@ export default function Dashboard() {
       return;
     }
 
-    // Simulate loading
     if (isSignedIn) {
-      setTimeout(() => setLoading(false), 1000);
+      fetchDashboardData();
     }
   }, [isSignedIn, isLoaded, router]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await getApi(`${BACKEND_URL}/api/user/dash`);
+      setDashboardData(response.data);
+    } catch (error: any) {
+      console.error('Failed to fetch dashboard data:', error);
+      
+      // Handle different error scenarios
+      if (error.response?.status === 401) {
+        // Unauthorized - redirect to sign in
+        router.push('/sign-in?redirect=/dashboard');
+      } else if (error.response?.status === 404) {
+        // User not found - show profile completion message
+        setDashboardData({ user: null, canBookService: false });
+      } else {
+        // Other errors - show retry option
+        setDashboardData(null);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleServiceRequest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,16 +98,7 @@ export default function Dashboard() {
       case 'active': return 'bg-green-100 text-green-800';
       case 'grace_period': return 'bg-yellow-100 text-yellow-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getRequestStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'scheduled': return 'bg-blue-100 text-blue-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
+      case 'expired': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -67,48 +106,75 @@ export default function Dashboard() {
   if (!isLoaded || loading) {
     return (
       <Layout title="Dashboard - Furniture Wellness">
+        <DashboardSkeleton />
+      </Layout>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <Layout title="Dashboard - Furniture Wellness">
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
-            <LoadingSpinner size="lg" className="mx-auto mb-4" />
-            <p className="text-gray-600">Loading your dashboard...</p>
+            <p className="text-gray-600">Failed to load dashboard data</p>
+            <button 
+              onClick={fetchDashboardData}
+              className="btn-primary mt-4"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </Layout>
     );
   }
 
-  const isEligible = isEligibleForService();
-  const nextServiceDate = userProfile.nextEligibleServiceDate;
-  const gracePeriodEnd = userProfile.gracePeriodEndDate;
+  // Check if user data exists
+  if (!dashboardData.user) {
+    return (
+      <Layout title="Dashboard - Furniture Wellness">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">User Profile Not Found</h3>
+            <p className="text-gray-600 mb-4">
+              We couldn't find your user profile. Please complete your profile setup first.
+            </p>
+            <button
+              onClick={() => router.push('/pricing')}
+              className="btn-primary"
+            >
+              Complete Profile
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  const { user: userProfile, canBookService } = dashboardData;
+  const activeSubscriptions = userProfile?.subscriptions?.filter(sub => sub.status === 'active') || [];
+  const pastSubscriptions = userProfile?.subscriptions?.filter(sub => sub.status !== 'active') || [];
 
   return (
     <Layout title="Dashboard - Furniture Wellness">
-      {/* Demo Notice */}
-      <div className="bg-blue-50 border-b border-blue-200">
-        <div className="container-width section-padding py-3">
-          <div className="flex items-center justify-center text-sm text-blue-700">
-            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-            <span className="font-medium">Demo Mode:</span>
-            <span className="ml-1">All data shown is for demonstration purposes</span>
-          </div>
-        </div>
-      </div>
-
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="container-width section-padding">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {userProfile.name}
+              Welcome back, {userProfile.fullName}
             </h1>
             <p className="text-gray-600">
               Manage your furniture care subscription and schedule services
             </p>
             {isSignedIn && (
               <p className="text-sm text-gray-500 mt-1">
-                User ID: {user?.id}
+                User Email: {userProfile.email}
               </p>
             )}
           </div>
@@ -119,28 +185,24 @@ export default function Dashboard() {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Subscription Status</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(userProfile.subscriptionStatus)}`}>
-                    {userProfile.subscriptionStatus.replace('_', ' ').toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Plan:</span>
+                  <span className="text-gray-600">Active Subscriptions:</span>
                   <span className="font-medium text-gray-900">
-                    {userProfile.planId.charAt(0).toUpperCase() + userProfile.planId.slice(1)}
+                    {activeSubscriptions.length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Grace Period Ended:</span>
-                  <span className="text-sm text-gray-900">
-                    {format(gracePeriodEnd, 'MMM dd, yyyy')}
+                  <span className="text-gray-600">Total Subscriptions:</span>
+                  <span className="font-medium text-gray-900">
+                    {userProfile?.subscriptions?.length || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Next Service Due:</span>
-                  <span className="text-sm text-gray-900">
-                    {format(nextServiceDate, 'MMM dd, yyyy')}
-                  </span>
+                  <span className="text-gray-600">Email:</span>
+                  <span className="text-sm text-gray-900">{userProfile.email}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Phone:</span>
+                  <span className="text-sm text-gray-900">{userProfile.phone}</span>
                 </div>
               </div>
             </div>
@@ -148,15 +210,32 @@ export default function Dashboard() {
             <div className="card">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Service Eligibility</h3>
               <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
+                  canBookService ? 'bg-green-100' : 'bg-red-100'
+                }`}>
+                  {canBookService ? (
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
                 </div>
-                <p className="text-green-600 font-medium mb-2">Eligible for Service</p>
+                <p className={`font-medium mb-2 ${
+                  canBookService ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {canBookService ? 'Eligible for Service' : 'Not Eligible for Service'}
+                </p>
                 <button
                   onClick={() => setShowServiceModal(true)}
-                  className="btn-primary w-full"
+                  disabled={!canBookService}
+                  className={`w-full ${
+                    canBookService 
+                      ? 'btn-primary' 
+                      : 'btn-secondary opacity-50 cursor-not-allowed'
+                  }`}
                 >
                   Request Service
                 </button>
@@ -168,66 +247,142 @@ export default function Dashboard() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Address:</span>
-                  <span className="text-gray-900">{userProfile.address.city}, {userProfile.address.state}</span>
+                  <span className="text-gray-900 text-right max-w-[150px] truncate" title={userProfile.address}>
+                    {userProfile.address.length > 20 ? `${userProfile.address.substring(0, 20)}...` : userProfile.address}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Phone:</span>
                   <span className="text-gray-900">{userProfile.phone}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Household:</span>
-                  <span className="text-gray-900 capitalize">{userProfile.householdType}</span>
+                  <span className="text-gray-600">Email:</span>
+                  <span className="text-gray-900 text-right max-w-[150px] truncate" title={userProfile.email}>
+                    {userProfile.email.length > 20 ? `${userProfile.email.substring(0, 20)}...` : userProfile.email}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Furniture:</span>
-                  <span className="text-gray-900 capitalize">{userProfile.furnitureType.join(', ')}</span>
+                  <span className="text-gray-600">User ID:</span>
+                  <span className="text-gray-900 text-right max-w-[150px] truncate" title={userProfile.id}>
+                    {userProfile.id.substring(0, 8)}...
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Service History */}
-          <div className="card">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">Service History</h3>
-              <span className="text-sm text-gray-500">
-                {serviceRequests.length} total requests
-              </span>
-            </div>
+          {/* Active Subscriptions */}
+          {activeSubscriptions.length > 0 && (
+            <div className="card mb-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Active Subscriptions</h3>
+                <span className="text-sm text-gray-500">
+                  {activeSubscriptions.length} active
+                </span>
+              </div>
 
-            <div className="space-y-4">
-              {serviceRequests.map((request) => (
-                <div key={request.id} className="border border-gray-200 rounded-xl p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="font-medium text-gray-900">
-                        {request.serviceType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        Requested on {format(request.requestDate, 'MMM dd, yyyy')}
-                      </p>
+              <div className="space-y-4">
+                {activeSubscriptions.map((subscription) => (
+                  <div key={subscription.id} className="border border-green-200 rounded-xl p-4 bg-green-50">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-medium text-gray-900">
+                          {subscription.subscriptionType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Started on {format(new Date(subscription.buyDate), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(subscription.status)}`}>
+                        {subscription.status.toUpperCase()}
+                      </span>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRequestStatusColor(request.status)}`}>
-                      {request.status.toUpperCase()}
-                    </span>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Service Period:</span>
+                        <p className="text-gray-900">
+                          {format(new Date(subscription.serviceStartTime), 'MMM dd, yyyy')} - {format(new Date(subscription.serviceEndTime), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Created:</span>
+                        <p className="text-gray-900">
+                          {format(new Date(subscription.createdAt), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-gray-700 mb-2">{request.description}</p>
-                  {request.scheduledDate && (
-                    <p className="text-sm text-gray-600">
-                      Scheduled for {format(request.scheduledDate, 'MMM dd, yyyy')}
-                    </p>
-                  )}
-                  {request.technicianNotes && (
-                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-700">
-                        <span className="font-medium">Technician Notes:</span> {request.technicianNotes}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Past Subscriptions */}
+          {pastSubscriptions.length > 0 && (
+            <div className="card">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Past Subscriptions</h3>
+                <span className="text-sm text-gray-500">
+                  {pastSubscriptions.length} total
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                {pastSubscriptions.map((subscription) => (
+                  <div key={subscription.id} className="border border-gray-200 rounded-xl p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-medium text-gray-900">
+                          {subscription.subscriptionType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Started on {format(new Date(subscription.buyDate), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(subscription.status)}`}>
+                        {subscription.status.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Service Period:</span>
+                        <p className="text-gray-900">
+                          {format(new Date(subscription.serviceStartTime), 'MMM dd, yyyy')} - {format(new Date(subscription.serviceEndTime), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Created:</span>
+                        <p className="text-gray-900">
+                          {format(new Date(subscription.createdAt), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* No Subscriptions Message */}
+          {userProfile.subscriptions.length === 0 && (
+            <div className="card text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Subscriptions Found</h3>
+              <p className="text-gray-600 mb-4">
+                You don't have any subscriptions yet. Start by choosing a plan.
+              </p>
+              <button
+                onClick={() => router.push('/pricing')}
+                className="btn-primary"
+              >
+                View Plans
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -277,8 +432,8 @@ export default function Dashboard() {
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
               <div className="text-sm text-blue-700">
-                <p className="font-medium">Demo Mode</p>
-                <p>This will simulate a service request submission</p>
+                <p className="font-medium">Service Request</p>
+                <p>Submit your service request and our team will contact you within 24 hours</p>
               </div>
             </div>
           </div>
