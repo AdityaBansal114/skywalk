@@ -1,28 +1,17 @@
 import React from 'react';
-import Cal from "@calcom/embed-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Clock, MapPin, User, Calendar } from 'lucide-react';
+import { Clock, MapPin, User } from 'lucide-react';
 
 interface CalComBookingWidgetProps {
-  username?: string;
-  eventTypeSlug?: string;
-  className?: string;
+  url: string;
 }
 
-const CalComBookingWidget: React.FC<CalComBookingWidgetProps> = ({
-  username,
-  eventTypeSlug,
-  className = ''
-}) => {
-  // Use provided props or fall back to environment configuration
-  const finalUsername = username || process.env.NEXT_PUBLIC_CALCOM_USERNAME;
-  const finalEventTypeSlug = eventTypeSlug || process.env.NEXT_PUBLIC_CALCOM_EVENT_TYPE_SLUG;
-  
-  // Generate the Cal.com booking URL
-  const calLink = `${finalUsername}/${finalEventTypeSlug}`;
+const CalComBookingWidget: React.FC<CalComBookingWidgetProps> = ({ url }) => {
+
+  const calLink = url;
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className="w-full">
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-gray-900">
@@ -32,7 +21,7 @@ const CalComBookingWidget: React.FC<CalComBookingWidgetProps> = ({
             Select your preferred date and time below
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* Service Information - Compact */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center bg-gray-50 p-4 rounded-lg">
@@ -67,36 +56,33 @@ const CalComBookingWidget: React.FC<CalComBookingWidgetProps> = ({
                 Choose your preferred appointment slot from the calendar below
               </p>
             </div>
-            
+
             <div className="p-4">
-              <Cal 
-                calLink={calLink}
+              <iframe
+                src={calLink}
                 style={{
                   width: '100%',
-                  height: '700px',
+                  height: '730px',
                   border: 'none',
                   borderRadius: '8px'
                 }}
-                config = {{theme: "light"}}
-              />
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
 
-          {/* Alternative Booking Link */}
-          <div className="text-center">
-            {/* <p className="text-sm text-gray-600 mb-3">
-              Having trouble with the calendar? Use the direct booking link:
-            </p> */}
-            {/* <a 
-              href={`https://cal.com/${calLink}`}
+          {/* Alternative Booking Link (optional, commented out) */}
+          {/* <div className="text-center">
+            <a 
+              href={calLink}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
             >
               <Calendar className="w-4 h-4 mr-2" />
               Open Full Booking Page
-            </a> */}
-          </div>
+            </a>
+          </div> */}
         </CardContent>
       </Card>
     </div>
@@ -104,3 +90,4 @@ const CalComBookingWidget: React.FC<CalComBookingWidgetProps> = ({
 };
 
 export default CalComBookingWidget;
+

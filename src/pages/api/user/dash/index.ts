@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server'
 import { db } from "@/lib/db";
 
-export async function mySubs(
+export default async function mySubs(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
@@ -17,9 +17,6 @@ export async function mySubs(
             const user = await db.user.findUnique({
                 where: {
                     clerkId
-                },
-                select:{
-                    subscriptions: true
                 }
             })
 
@@ -27,7 +24,10 @@ export async function mySubs(
                 return res.status(200).json({ subscriptions: [] })
             }
 
-            return res.status(200).json({ subscriptions: user.subscriptions})
+            // function call to get serivability status
+            const servicable = false;
+
+            return res.status(200).json({ user: user, service: servicable})
         }
         catch {
             console.log("Error in the GET api/user/mySubscriptions")

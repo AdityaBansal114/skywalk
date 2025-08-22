@@ -37,12 +37,6 @@ export default function Header() {
               Pricing
             </Link>
             
-            <Link
-              href="/book-appointment"
-              className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
-            >
-              Book Appointment
-            </Link>
 
             {isSignedIn ? (
               <>
@@ -150,7 +144,7 @@ export default function Header() {
                   Dashboard
                 </Link>
                 <Link
-                  href="/progress"
+                  href="/user/progress"
                   className="block px-3 py-2 text-gray-700 hover:text-primary-600 font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >

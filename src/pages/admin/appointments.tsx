@@ -560,10 +560,7 @@ const AdminAppointmentsPage: NextPage = () => {
               </Card>
 
               {/* Direct Booking Link Generator */}
-              <DirectBookingLink 
-                username={USERNAME}
-                eventTypeSlug={EVENT_TYPE_SLUG}
-              />
+              <DirectBookingLink/>
             </div>
           </div>
         </div>

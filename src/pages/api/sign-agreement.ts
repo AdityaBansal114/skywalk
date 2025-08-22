@@ -268,38 +268,41 @@ fs.writeFileSync(localPath, modifiedPdfBytes);
 // Local URL (Next.js serves everything under /public as static files)
 const signedPdfUrl = `/signed-agreements/${fileName}`;
 
+
+    // logging logic //
+
     // Log the agreement signing (you can replace this with database storage later)
-    const agreementLog = {
-      customerName: fullName,
-      customerEmail: email,
-      signatureDate: timestamp,
-      clientIP,
-      s3Url,
-      timestamp: new Date().toISOString()
-    };
+    // const agreementLog = {
+    //   customerName: fullName,
+    //   customerEmail: email,
+    //   signatureDate: timestamp,
+    //   clientIP,
+    //   s3Url,
+    //   timestamp: new Date().toISOString()
+    // };
 
-    console.log('Agreement signed successfully:', agreementLog);
+    // console.log('Agreement signed successfully:', agreementLog);
 
-    // You can also save to a JSON file for now
-    const logFilePath = path.join(process.cwd(), 'agreement-logs.json');
-    let logs = [];
+    // // You can also save to a JSON file for now
+    // const logFilePath = path.join(process.cwd(), 'agreement-logs.json');
+    // let logs = [];
     
-    try {
-      if (fs.existsSync(logFilePath)) {
-        const existingLogs = fs.readFileSync(logFilePath, 'utf-8');
-        logs = JSON.parse(existingLogs);
-      }
-    } catch (error) {
-      console.warn('Could not read existing logs, starting fresh');
-    }
+    // try {
+    //   if (fs.existsSync(logFilePath)) {
+    //     const existingLogs = fs.readFileSync(logFilePath, 'utf-8');
+    //     logs = JSON.parse(existingLogs);
+    //   }
+    // } catch (error) {
+    //   console.warn('Could not read existing logs, starting fresh');
+    // }
 
-    logs.push(agreementLog);
+    // logs.push(agreementLog);
     
-    try {
-      fs.writeFileSync(logFilePath, JSON.stringify(logs, null, 2));
-    } catch (error) {
-      console.warn('Could not write to log file:', error);
-    }
+    // try {
+    //   fs.writeFileSync(logFilePath, JSON.stringify(logs, null, 2));
+    // } catch (error) {
+    //   console.warn('Could not write to log file:', error);
+    // }
 
     return res.status(200).json({
       success: true,
