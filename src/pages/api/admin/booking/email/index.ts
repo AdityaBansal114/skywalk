@@ -1,7 +1,7 @@
 import { calComClient } from "@/lib/calcom";
 import { db } from "@/lib/db";
 import { getAuth } from "@clerk/nextjs/server";
-import { User } from "lucide-react";
+
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function GET(

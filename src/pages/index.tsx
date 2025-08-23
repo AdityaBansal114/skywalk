@@ -6,7 +6,7 @@ const testimonials = [
   {
     name: 'Sarah Johnson',
     role: 'Homeowner',
-    content: 'The furniture wellness service has been amazing! My leather sofa looks brand new after their touch-up service.',
+    content: 'The FurnishCare service has been amazing! My leather sofa looks brand new after their touch-up service.',
     rating: 5
   },
   {
@@ -118,7 +118,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Why Choose Furniture Wellness?
+                Why Choose FurnishCare?
               </h2>
               <div className="space-y-6">
                 <div className="flex items-start">
@@ -179,9 +179,11 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+ 
       {/* Testimonials Section */}
-      <section className="py-20 bg-white">
+
+
+      {/* <section className="py-20 bg-white">
         <div className="container-width section-padding">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -212,7 +214,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Navigation */}
+
             <div className="flex justify-center mt-8 space-x-4">
               <button
                 onClick={prevTestimonial}
@@ -232,7 +234,7 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Dots indicator */}
+
             <div className="flex justify-center mt-4 space-x-2">
               {testimonials.map((_, index) => (
                 <button
@@ -246,7 +248,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section>  */}
 
       {/* CTA Section */}
       <section className="py-20 bg-primary-600">

@@ -124,7 +124,7 @@ export default function Pricing() {
 
   return (
     <Layout 
-      title="Pricing - Furniture Wellness"
+      title="Pricing - FurnishCare"
       description="Choose the perfect furniture care plan for your needs. All plans include our 90-day grace period protection."
     >
       {/* Demo Notice */}

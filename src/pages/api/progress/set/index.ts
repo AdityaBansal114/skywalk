@@ -9,12 +9,15 @@ export default async function POST(req: NextApiRequest, res: NextApiResponse) {
 
         const { subscriptionType } = body;
 
+        
         const { userId: clerkId } = getAuth(req);
 
 
+
+
         if (!clerkId || !subscriptionType) {
-            console.log(body)
-            console.log("heyy")
+
+            console.log("not auth");
             return res.status(400).json({ error: "invalid arguements" })
         }
 
@@ -23,6 +26,7 @@ export default async function POST(req: NextApiRequest, res: NextApiResponse) {
             where: { clerkId },
         });
 
+        
 
         if (!existing) {
             // Create new if not found

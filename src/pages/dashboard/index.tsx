@@ -105,7 +105,7 @@ export default function Dashboard() {
 
   if (!isLoaded || loading) {
     return (
-      <Layout title="Dashboard - Furniture Wellness">
+      <Layout title="Dashboard - FurnishCare">
         <DashboardSkeleton />
       </Layout>
     );
@@ -113,7 +113,7 @@ export default function Dashboard() {
 
   if (!dashboardData) {
     return (
-      <Layout title="Dashboard - Furniture Wellness">
+      <Layout title="Dashboard - FurnishCare">
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600">Failed to load dashboard data</p>
@@ -132,7 +132,7 @@ export default function Dashboard() {
   // Check if user data exists
   if (!dashboardData.user) {
     return (
-      <Layout title="Dashboard - Furniture Wellness">
+      <Layout title="Dashboard - FurnishCare">
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -161,7 +161,7 @@ export default function Dashboard() {
   const pastSubscriptions = userProfile?.subscriptions?.filter(sub => sub.status !== 'active') || [];
 
   return (
-    <Layout title="Dashboard - Furniture Wellness">
+    <Layout title="Dashboard - FurnishCare">
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="container-width section-padding">
           {/* Header */}

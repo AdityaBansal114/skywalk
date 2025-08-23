@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import {headers} from 'next/headers';
 
 // Cal.com API base URL
 const CALCOM_API_BASE = 'https://api.cal.com/v1';
@@ -98,6 +99,29 @@ class CalComClient {
     } catch (error: any) {
       console.error('Error updating daily capacity:', error);
       throw new Error(`Failed to update daily capacity: ${error.message}`);
+    }
+  }
+
+  async cancelBooking(bookingId : string){
+    try{
+      const res = await axios.post(`https://api.cal.com/v2/bookings/${bookingId}/cancel`,
+        {
+          cancellationReason: "cancelled by server",
+          cancelSubsequentBookings: false
+        },
+        {
+          headers:{
+            'cal-api-version' : "2024-08-13",
+            'Authorization': `Bearer ${this.apiKey}`
+          }
+        }
+      )
+
+
+    }
+    catch (e){
+      console.log("error in cancelling bookin in calcom client" + e);
+      // throw new Error(`error in cancelling booking  ${e}`)
     }
   }
 

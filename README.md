@@ -1,4 +1,4 @@
-# Furniture Wellness - Demo Version
+# FurnishCare - Demo Version
 
 A simplified demo version of the subscription-based furniture care service application.
 

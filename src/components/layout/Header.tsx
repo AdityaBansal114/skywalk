@@ -14,10 +14,10 @@ export default function Header() {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FW</span>
+                <span className="text-white font-bold text-sm">FC</span>
               </div>
               <span className="ml-2 text-xl font-semibold text-gray-900">
-                Furniture Wellness
+                FurnishCare
               </span>
             </Link>
           </div>

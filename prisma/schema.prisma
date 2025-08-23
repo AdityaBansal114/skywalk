@@ -16,12 +16,13 @@ datasource db {
 model User{
   id                   String                  @id @default(uuid())
   fullName             String
-  email                String
+  email                String                  @unique   
   phone                String
   address              String                  @db.Text
   clerkId              String                  @unique
   subscriptions        Subscription[]
   payments             Payment[]
+  bookings             Booking[]
 }
 
 model Subscription{
@@ -31,6 +32,7 @@ model Subscription{
   buyDate                 DateTime              @default(now())      
   serviceStartTime        DateTime
   serviceEndTime          DateTime
+  servicesLeft            Int
   agreementURL            String
   userId                  String
   user                    User                   @relation(fields: [userId],references: [id])
@@ -61,3 +63,9 @@ model Progress{
   agreementURL            String?
 }
 
+model Booking{
+  id                      String                @id @default(uuid())
+  calcomId                String                @unique
+  userId                  String
+  user                    User                  @relation(fields: [userId], references: [id])     
+}
