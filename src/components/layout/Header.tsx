@@ -17,7 +17,7 @@ export default function Header() {
                 <span className="text-white font-bold text-sm">FC</span>
               </div>
               <span className="ml-2 text-xl font-semibold text-gray-900">
-                FurnishCare
+                Furnish Care
               </span>
             </Link>
           </div>

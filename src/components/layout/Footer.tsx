@@ -12,7 +12,7 @@ export default function Footer() {
                 <span className="text-white font-bold text-sm">FW</span>
               </div>
               <span className="ml-2 text-xl font-semibold">
-                FurnishCare
+                Furnish Care
               </span>
             </div>
             <p className="text-gray-300 mb-4">
@@ -93,7 +93,7 @@ export default function Footer() {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © {new Date().getFullYear()} FurnishCare. All rights reserved.
+              © {new Date().getFullYear()} Furnish Care. All rights reserved.
             </p>
             <div className="mt-4 md:mt-0">
               <p className="text-gray-400 text-sm">

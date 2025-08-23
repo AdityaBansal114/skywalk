@@ -6,7 +6,7 @@ const testimonials = [
   {
     name: 'Sarah Johnson',
     role: 'Homeowner',
-    content: 'The FurnishCare service has been amazing! My leather sofa looks brand new after their touch-up service.',
+    content: 'The Furnish Care service has been amazing! My leather sofa looks brand new after their touch-up service.',
     rating: 5
   },
   {
@@ -81,7 +81,6 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Subscribe</h3>
               <p className="text-gray-600">
                 Choose your plan based on your furniture type and household needs. 
-                All plans include a 90-day grace period to protect your furniture.
               </p>
             </div>
 
@@ -92,8 +91,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Wait & Protect</h3>
               <p className="text-gray-600">
-                Enjoy your furniture knowing it's covered. Your 90-day grace period 
-                protects against unexpected damage while you wait for your first service.
+                Enjoy your furniture knowing you have Furnish Care. While you wait for your first service.
               </p>
             </div>
 
@@ -118,7 +116,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Why Choose FurnishCare?
+                Why Choose Furnish Care?
               </h2>
               <div className="space-y-6">
                 <div className="flex items-start">
@@ -129,7 +127,7 @@ export default function Home() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Peace of Mind</h3>
-                    <p className="text-gray-600">90-day grace period protects your investment from unexpected damage.</p>
+                    <p className="text-gray-600">Secure your investment from unexoected damage.</p>
                   </div>
                 </div>
 
@@ -156,6 +154,28 @@ export default function Home() {
                     <p className="text-gray-600">Regular maintenance extends furniture life and prevents costly replacements.</p>
                   </div>
                 </div>
+                <div className="flex items-start">
+                  <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Convenience</h3>
+                    <p className="text-gray-600">We come to you, working at your schedule to minimize disruption to your home life.</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Longevity Preservation</h3>
+                    <p className="text-gray-600">Regular professional care extends the life of your furniture, protecting your investment.</p>
+                  </div>
+                </div> 
               </div>
             </div>
 

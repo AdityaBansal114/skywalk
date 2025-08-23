@@ -60,7 +60,7 @@ const SUBSCRIPTION_PLANS = [
     price: 149,
     frequency: 2,
     features: [
-      'Bi-annual serive',
+      'Bi-annual maintenance included',
       '90-day grace period protection',
       'upto 20 peices',
       '$100 for each extra peice',
@@ -124,7 +124,7 @@ export default function Pricing() {
 
   return (
     <Layout 
-      title="Pricing - FurnishCare"
+      title="Pricing - Furnish Care"
       description="Choose the perfect furniture care plan for your needs. All plans include our 90-day grace period protection."
     >
       {/* Demo Notice */}
@@ -182,7 +182,7 @@ export default function Pricing() {
                     <span className="text-gray-500">/month</span>
                   </div>
                   <p className="text-gray-600 mb-6">
-                   {plan.frequency == 1? `Shedule a visit once a year` : `Schedule visits upto ${plan.frequency} times per year`}
+                   {plan.frequency == 1? `` : `Schedule visits upto ${plan.frequency} times per year`}
                   </p>
                 </div>
 
@@ -225,13 +225,13 @@ export default function Pricing() {
       {/* Grace Period Explanation */}
       <section className="py-16 bg-gray-50">
         <div className="container-width section-padding">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                90-Day Grace Period Protection
+                90-Day Quality Care Kickstart
               </h2>
               <p className="text-xl text-gray-600">
-                Every subscription includes comprehensive protection from day one
+                Every subscription includes comprehensive Furnish Care from day one
               </p>
             </div>
 
@@ -243,14 +243,14 @@ export default function Pricing() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900">What's Covered</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">What's Included In Each Plan</h3>
                 </div>
                 <ul className="space-y-2 text-gray-600">
-                  <li>• Accidental damage protection</li>
-                  <li>• Pet-related furniture damage</li>
-                  <li>• Child-related wear and tear</li>
-                  <li>• Normal usage deterioration</li>
-                  <li>• Stains and discoloration</li>
+                  <li>• Accidental damage repairs</li>
+                  <li>• Pet-related furniture touch-ups and repairs</li>
+                  <li>• Child-related wear and tear touch-ups</li>
+                  <li>• Normal usage deterioration repairs</li>
+                  <li>• Stains and discoloration touch-ups</li>
                 </ul>
               </div>
 
@@ -264,11 +264,11 @@ export default function Pricing() {
                   <h3 className="text-xl font-semibold text-gray-900">How It Works</h3>
                 </div>
                 <ul className="space-y-2 text-gray-600">
-                  <li>• Protection begins immediately upon subscription</li>
-                  <li>• No waiting period for coverage</li>
-                  <li>• Service scheduled at your convenience</li>
-                  <li>• Professional assessment included</li>
-                  <li>• Ongoing protection with regular maintenance</li>
+                  <li>• Your plan activates the moment you subscribe</li>
+                  <li>• Schedule your first service at your convenience</li>
+                  <li>• Expert technicians provide professional repairs and touch-ups</li>
+                  <li>• Each visit includes a full furniture assessment</li>
+                  <li>• Enjoy ongoing care that keeps your furniture looking new</li>
                 </ul>
               </div>
             </div>

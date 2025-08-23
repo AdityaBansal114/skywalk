@@ -1,4 +1,4 @@
-# FurnishCare - Demo Version
+# Furnish Care - Demo Version
 
 A simplified demo version of the subscription-based furniture care service application.
 
