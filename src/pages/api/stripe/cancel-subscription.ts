@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { stripe, CANCELLATION_FEE } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe';
 import { db } from '@/lib/db';
+import { calculateCancellationFee } from '@/lib/cancellationFeeCalculator';
 
 export default async function handler(
   req: NextApiRequest,
@@ -24,107 +25,88 @@ export default async function handler(
     }
 
     // Get user from database
-    const user = await db.user.findUnique({
-      where: { clerkId }
+    const userWithSub = await db.user.findFirst({
+      where: {
+        clerkId,
+        subscriptions: {
+          some: {
+            stripeSubscriptionId: subscriptionId,
+          },
+        },
+      },
+      include: {
+        subscriptions: true, // optional, only if you want subscription details
+      },
     });
 
-    if (!user) {
+    if (!userWithSub) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Get Stripe customer
-    const customers = await stripe.customers.list({
-      email: user.email,
-      limit: 1
+    // Get subscription details from database
+    const subscription = await db.subscription.findUnique({
+      where: {
+        stripeSubscriptionId: subscriptionId
+      }
     });
 
-    if (customers.data.length === 0) {
-      return res.status(404).json({ error: 'Stripe customer not found' });
+    console.log('1')
+
+    if (!subscription) {
+      return res.status(404).json({ error: 'Subscription not found' });
     }
 
-    const customer = customers.data[0];
+    // Calculate the cancellation fee using the new library
+    const feeResult = calculateCancellationFee(
+      subscription.subscriptionType,
+      subscription.serviceEndTime.toISOString(),
+      subscription.buyDate.toISOString()
+    );
 
-    // Get subscription details
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    
-    if (subscription.customer !== customer.id) {
-      return res.status(403).json({ error: 'Subscription does not belong to user' });
+    const customerId = subscription.stripeCustomerId;
+
+    // Only charge fee if there should be one
+    if (feeResult.shouldApplyFee && feeResult.feeAmount > 0) {
+      // Create invoice item for cancellation fee (amount in cents)
+      console.log('2')
+      await stripe.invoiceItems.create({
+        customer: customerId,
+        amount: feeResult.feeAmount * 100, // in cents → $20 cancellation fee
+        currency: 'usd',
+        description: 'Early cancellation fee',
+      });
+      
+      // Immediately finalize and charge the invoice
+      const invoice = await stripe.invoices.create({
+        customer: customerId,
+        auto_advance: true, // automatically charge
+      });
+      
+      await stripe.invoices.pay(invoice!.id!);
+      
+      // Now cancel the subscription
+      await stripe.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: false, // immediate cancel
+      });
+
+
     }
 
-    // Create invoice item for cancellation fee
-    const invoiceItem = await stripe.invoiceItems.create({
-      customer: customer.id,
-      amount: CANCELLATION_FEE,
-      currency: 'usd',
-      description: 'Early cancellation fee',
-      metadata: {
-        type: 'cancellation_fee',
-        subscriptionId,
-        clerkId
-      }
-    });
-
-    // Create and finalize invoice
-    const invoice = await stripe.invoices.create({
-      customer: customer.id,
-      auto_advance: false,
-      collection_method: 'charge_automatically',
-      metadata: {
-        type: 'cancellation_invoice',
-        subscriptionId,
-        clerkId
-      }
-    });
-
-    // Add the invoice item to the invoice
-    await stripe.invoiceItems.create({
-      customer: customer.id,
-      invoice: invoice.id,
-      amount: CANCELLATION_FEE,
-      currency: 'usd',
-      description: 'Early cancellation fee',
-      metadata: {
-        type: 'cancellation_fee',
-        subscriptionId,
-        clerkId
-      }
-    });
-
-    // Finalize the invoice
-    const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
-
-    // Pay the invoice immediately
-    const paidInvoice = await stripe.invoices.pay(finalizedInvoice.id, {
-      paid_out_of_band: false
-    });
+    console.log('6')
 
     // Cancel the subscription immediately
     const cancelledSubscription = await stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: false,
-      cancel_immediately: true
+      proration_behavior: 'none'
     });
 
-    // Update database - mark subscription as cancelled
-    await db.subscription.updateMany({
-      where: {
-        userId: user.id,
-        status: 'active'
-      },
-      data: {
-        status: 'cancelled'
-      }
-    });
-
-    // Update progress to completed
-    await db.progress.update({
-      where: { clerkId },
-      data: { currentStep: 4 }
-    });
 
     return res.status(200).json({
       message: 'Subscription cancelled successfully',
-      cancellationFee: CANCELLATION_FEE / 100, // Convert back to dollars
-      invoiceId: paidInvoice.id,
+      cancellationFee: feeResult.feeAmount,
+      cancellationFeeFormatted: feeResult.feeAmountFormatted,
+      monthsCharged: feeResult.monthsCharged,
+      reason: feeResult.reason,
       subscriptionId: cancelledSubscription.id
     });
 

@@ -25,11 +25,39 @@ interface DashboardData {
       serviceStartTime: string;
       serviceEndTime: string;
       agreementURL: string;
+      servicesLeft: number;
+      stripeSubscriptionId: string;
       createdAt: string;
       updatedAt: string;
+      payments: Array<{
+        id: string;
+        invoiceId: string;
+        invoiceLink: string | null;
+        createdAt: string;
+      }>;
+    }>;
+    payments: Array<{
+      id: string;
+      invoiceId: string;
+      invoiceLink: string | null;
+      createdAt: string;
+      subscription: {
+        id: string;
+        subscriptionType: string;
+      };
     }>;
   } | null;
   canBookService: boolean;
+  payments: Array<{
+    id: string;
+    invoiceId: string;
+    invoiceLink: string | null;
+    createdAt: string;
+    subscription: {
+      id: string;
+      subscriptionType: string;
+    };
+  }>;
 }
 
 export default function Dashboard() {
@@ -42,6 +70,7 @@ export default function Dashboard() {
     description: '',
     serviceType: 'subscription_touch_up' as const
   });
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const getApi = useGetApi();
 
@@ -53,6 +82,13 @@ export default function Dashboard() {
 
     if (isSignedIn) {
       fetchDashboardData();
+    }
+
+    // Check for success messages from URL params
+    if (router.query.cancelled === 'true') {
+      setShowSuccessMessage(true);
+      // Clean up URL
+      router.replace('/dashboard', undefined, { shallow: true });
     }
   }, [isSignedIn, isLoaded, router]);
 
@@ -70,7 +106,7 @@ export default function Dashboard() {
         router.push('/sign-in?redirect=/dashboard');
       } else if (error.response?.status === 404) {
         // User not found - show profile completion message
-        setDashboardData({ user: null, canBookService: false });
+        setDashboardData({ user: null, canBookService: false, payments: [] });
       } else {
         // Other errors - show retry option
         setDashboardData(null);
@@ -162,7 +198,30 @@ export default function Dashboard() {
   return (
     <Layout title="Dashboard - Furnish Care">
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container-width section-padding">
+                  <div className="container-width section-padding">
+          {/* Success Message */}
+          {showSuccessMessage && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <div className="flex">
+                <svg className="w-5 h-5 text-green-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div className="text-sm text-green-700">
+                  <p className="font-medium">Subscription Cancelled Successfully</p>
+                  <p>Your subscription has been cancelled and any applicable fees have been processed.</p>
+                </div>
+                <button 
+                  onClick={() => setShowSuccessMessage(false)}
+                  className="ml-auto text-green-400 hover:text-green-600"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+          
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -296,7 +355,7 @@ export default function Dashboard() {
                         {subscription.status.toUpperCase()}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                       <div>
                         <span className="text-gray-600">Service Period:</span>
                         <p className="text-gray-900">
@@ -304,11 +363,22 @@ export default function Dashboard() {
                         </p>
                       </div>
                       <div>
-                        <span className="text-gray-600">Created:</span>
-                        <p className="text-gray-900">
-                          {format(new Date(subscription.createdAt), 'MMM dd, yyyy')}
+                        <span className="text-gray-600">Services Left:</span>
+                        <p className="text-gray-900 font-semibold">
+                          {subscription.servicesLeft} remaining
                         </p>
                       </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-gray-600">
+                        Created: {format(new Date(subscription.createdAt), 'MMM dd, yyyy')}
+                      </div>
+                      <button
+                        onClick={() => router.push(`/cancel-subscription?subscriptionId=${subscription.stripeSubscriptionId}`)}
+                        className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        Cancel Service
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -356,6 +426,55 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Payment History */}
+          {dashboardData.payments && dashboardData.payments.length > 0 && (
+            <div className="card mb-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Payment History</h3>
+                <span className="text-sm text-gray-500">
+                  {dashboardData.payments.length} payments
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                {dashboardData.payments.map((payment) => (
+                  <div key={payment.id} className="border border-gray-200 rounded-xl p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-medium text-gray-900">
+                          {payment.subscription.subscriptionType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} Payment
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Invoice ID: {payment.invoiceId}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          PAID
+                        </span>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {format(new Date(payment.createdAt), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                    </div>
+                    {payment.invoiceLink && (
+                      <div className="flex justify-end">
+                        <a
+                          href={payment.invoiceLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          View Invoice
+                        </a>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

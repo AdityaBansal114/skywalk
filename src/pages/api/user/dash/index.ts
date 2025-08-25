@@ -21,7 +21,18 @@ export default async function mySubs(
                 },
                 include: {
                     subscriptions: {
-                        orderBy: { buyDate: 'desc' }
+                        orderBy: { buyDate: 'desc' },
+                        include: {
+                            payments: {
+                                orderBy: { createdAt: 'desc' }
+                            }
+                        }
+                    },
+                    payments: {
+                        orderBy: { createdAt: 'desc' },
+                        include: {
+                            subscription: true
+                        }
                     }
                 }
             })
@@ -73,7 +84,8 @@ export default async function mySubs(
             return res.status(200).json({ 
                 user: user, 
                 canBookService: canBookService,
-                stripeSubscription
+                stripeSubscription,
+                payments: user.payments
             })
         }
         catch (error) {

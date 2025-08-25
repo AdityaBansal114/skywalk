@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { usePostApi } from '@/lib/apiCallerClient';
-import { CANCELLATION_FEE } from '@/lib/stripe-client';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 
@@ -99,7 +98,7 @@ export default function CancelSubscriptionButton({
               <div>
                 <h4 className="font-medium text-yellow-800">Cancellation Fee</h4>
                 <p className="text-yellow-700 text-sm mt-1">
-                  A one-time cancellation fee of <strong>${(CANCELLATION_FEE / 100).toFixed(2)}</strong> will be charged immediately.
+                  A cancellation fee may apply based on your remaining subscription time. The exact amount will be calculated and charged immediately.
                 </p>
               </div>
             </div>

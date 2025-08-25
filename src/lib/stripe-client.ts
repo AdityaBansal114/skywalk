@@ -58,8 +58,6 @@ export const SUBSCRIPTION_PLANS = {
   }
 };
 
-// Cancellation fee in cents
-export const CANCELLATION_FEE = 2000; // $20.00
 
 export function formatStripeAmount(amount: number): string {
   return `$${(amount / 100).toFixed(2)}`;

@@ -29,6 +29,7 @@ model Subscription{
   id                      String                @id @default(uuid())
   subscriptionType        String
   stripeSubscriptionId    String                @unique
+  stripeCustomerId        String                
   status                  String                @default("active")
   buyDate                 DateTime                   
   serviceStartTime        DateTime

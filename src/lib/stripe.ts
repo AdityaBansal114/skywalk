@@ -10,4 +10,4 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 // Re-export client-side constants for server-side use
-export { SUBSCRIPTION_PLANS, CANCELLATION_FEE, formatStripeAmount, parseStripeAmount } from './stripe-client';
+export { SUBSCRIPTION_PLANS, formatStripeAmount, parseStripeAmount } from './stripe-client';

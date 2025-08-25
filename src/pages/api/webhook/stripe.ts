@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { buffer } from 'micro';
 import { stripe, SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import { db } from '@/lib/db';
+// import stripe from '@/lib/stripe';
 import calculateServiceTime from '@/lib/serviceTimeCal';
 export const config = {
   api: {
@@ -11,49 +12,120 @@ export const config = {
 
 async function handleInvoicePaymentSucceeded(invoice: any) {
   try {
-    console.log('inside handleInvoicePaymentSucceeded');
+
     const subscriptionId = invoice.lines.data[0].parent.subscription_item_details.subscription;
-    if (!subscriptionId){
+    if (!subscriptionId) {
       console.error('Missing subscriptionId in invoice:', invoice.id);
       return;
     }
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    const clerkId = subscription.metadata.clerkId;
-    const userId = subscription.metadata.userId;
-    const planId = subscription.metadata.planId;
-    
-    if (!clerkId || !userId || !planId) {
-      console.error('Missing metadata in subscription:', subscriptionId);
-      return;
-    }
-    
-    
+
     const existingSub = await db.subscription.findUnique({
-      where:{
-        stripeSubscriptionId : subscriptionId
+      where: {
+        stripeSubscriptionId: subscriptionId
       }
     })
-    let sub ;
+  
 
-    if(!existingSub){
-      const {serviceStartTime, serviceEndTime} = calculateServiceTime(new Date());
+    if (!existingSub) {
+      return;
+    }
+
+    const invoiceId: string = invoice.id;
+    const invoiceLink: string = invoice.hosted_invoice_url;
+
+    console.log('invoiceId', invoiceId);
+    console.log('invoiceLink', invoiceLink);
+
+    await db.payment.create({
+      data: {
+        invoiceId,
+        invoiceLink,
+        subscriptionId: existingSub.id,
+        userId : existingSub.userId,
+      }
+    })
+
+    console.log(`Subscription ${subscriptionId} payment succeeded for userId ${existingSub.userId}`);
+  } catch (error) {
+    console.error('Error handling invoice payment succeeded:', error);
+  }
+}
+
+async function handleSubscriptionDeleted(subscription: any) {
+  try {
+    const stripeSubscriptionId = subscription.id;
+
+    // Update subscription status in database
+    await db.subscription.update({
+      where: {
+        stripeSubscriptionId
+      },
+      data: {
+        status: 'expired',
+        serviceEndTime: new Date().toISOString()
+      }
+    });
+
+    console.log(`Subscription ${subscription.id} cancelled for user`);
+  } catch (error) {
+    console.error('Error handling subscription deleted:', error);
+  }
+}
+
+async function handleCheckoutSessionCompleted(session: any) {
+  try {
+    
+    const subscriptionId = session.subscription;
+
+    const now = Date.now();
+
+    // Add 12 months (approx 12 * 30 days)
+    const twelveMonthsInSeconds = 3600 * 24 * 365;
+
+    // cancel_at must be in **seconds**
+    const cancelAt = Math.floor(now / 1000) + twelveMonthsInSeconds;
+
+    if(subscriptionId){
+      await stripe.subscriptions.update(subscriptionId, {
+        cancel_at: cancelAt
+    });
+    }
+
+    const userId = session.metadata.userId;
+    const clerkId = session.metadata.clerkId;
+    const planId = session.metadata.planId;
+    const cutomerId = session.customer;
+
+
+
+    const existingSub = await db.subscription.findUnique({
+      where: {
+        stripeSubscriptionId: subscriptionId
+      }
+    })
+    let sub;
+
+    if (!existingSub) {
+      const { serviceStartTime, serviceEndTime } = calculateServiceTime(new Date());
       const progress = await db.progress.findUnique({
-        where:{
+        where: {
           clerkId
         },
-        select:{
+        select: {
           agreementURL: true
         }
       })
       const plan = SUBSCRIPTION_PLANS[planId as keyof typeof SUBSCRIPTION_PLANS];
       
+
       sub = await db.subscription.create({
-        data:{
-          stripeSubscriptionId : subscriptionId,
+        data: {
+          stripeSubscriptionId: subscriptionId,
           userId,
           subscriptionType: planId,
           status: 'active',
+          stripeCustomerId: cutomerId,
           buyDate: new Date(),
           serviceStartTime: serviceStartTime.toISOString(),
           serviceEndTime: serviceEndTime.toISOString(),
@@ -62,19 +134,23 @@ async function handleInvoicePaymentSucceeded(invoice: any) {
         }
       })
     }
-    else{
+    else {
       sub = existingSub;
     }
 
-    
-    const invoiceId : string = invoice.id;
-    const invoiceLink: string = invoice.hosted_invoice_url;
+    console.log('3')
+
+    const invoiceId: string = session.invoice;
+    const invoice = await stripe.invoices.retrieve(invoiceId);
+    const invoiceLink = invoice.hosted_invoice_url;
+
+
 
     console.log('invoiceId', invoiceId);
     console.log('invoiceLink', invoiceLink);
 
     await db.payment.create({
-      data:{
+      data: {
         invoiceId,
         invoiceLink,
         subscriptionId: sub.id,
@@ -82,86 +158,64 @@ async function handleInvoicePaymentSucceeded(invoice: any) {
       }
     })
 
+
+
     const progress = await db.progress.findUnique({
-      where:{
+      where: {
         clerkId
       },
-      select:{
+      select: {
         id: true
       }
     })
-    
-    if(progress){
+
+    if (progress) {
       await db.progress.delete({
-        where:{
+        where: {
           id: progress.id
         }
       })
     }
 
-    console.log(`Subscription ${subscriptionId} payment succeeded for user ${clerkId}`);
+
+    console.log('🔄 Checkout session completed:', session.id);
   } catch (error) {
-    console.error('Error handling invoice payment succeeded:', error);
-  }
-}
-
-async function handleSubscriptionDeleted(subscription: any) {
-  try {
-    const clerkId = subscription.metadata.clerkId;
-    const userId = subscription.metadata.userId;
-
-    if (!clerkId || !userId) {
-      console.error('Missing metadata in deleted subscription:', subscription.id);
-      return;
-    }
-
-    // Update subscription status in database
-    await db.subscription.updateMany({
-      where: {
-        userId,
-        status: 'active'
-      },
-      data: {
-        status: 'cancelled'
-      }
-    });
-
-    console.log(`Subscription ${subscription.id} cancelled for user ${clerkId}`);
-  } catch (error) {
-    console.error('Error handling subscription deleted:', error);
+    console.error('Error handling checkout session completed:', error);
   }
 }
 
 async function handleCustomerSubscriptionUpdated(subscription: any) {
   try {
-    const clerkId = subscription.metadata.clerkId;
-    const userId = subscription.metadata.userId;
-    const planId = subscription.metadata.planId;
+    console.log('🔄 Subscription updated webhook received:', subscription.id);
 
-    if (!clerkId || !userId || !planId) {
-      console.error('Missing metadata in subscription update:', subscription.id);
+    const statusMap: Record<string, string> = {
+      trialing: 'trialing',
+      active: 'active',
+      past_due: 'past_due',
+      canceled: 'cancelled',
+      unpaid: 'unpaid',
+      incomplete: 'failed',
+      incomplete_expired: 'failed',
+      paused: 'paused',
+    };
+
+    const mappedStatus = statusMap[subscription.status];
+
+    if (!mappedStatus) {
+      console.warn(`⚠️ Unknown Stripe subscription status: ${subscription.status}`);
       return;
     }
 
-    // Update subscription status based on Stripe status
-    let status = 'active';
-    if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
-      status = 'cancelled';
-    } else if (subscription.status === 'past_due') {
-      status = 'past_due';
-    }
-
-    await db.subscription.updateMany({
+    await db.subscription.update({
       where: {
-        userId,
-        status: 'active'
+        stripeSubscriptionId: subscription.id,
       },
       data: {
-        status
-      }
+        status: mappedStatus,
+      },
     });
 
-    console.log(`Subscription ${subscription.id} updated to status ${status} for user ${clerkId}`);
+    console.log(`✅ Subscription ${subscription.id} updated to status: ${mappedStatus}`);
   } catch (error) {
     console.error('Error handling subscription updated:', error);
   }
@@ -211,6 +265,7 @@ export default async function handler(
         // Handle successful checkout completion
         const session = event.data.object;
         console.log('Checkout session completed:', session.id);
+        await handleCheckoutSessionCompleted(session);
         break;
 
       default:

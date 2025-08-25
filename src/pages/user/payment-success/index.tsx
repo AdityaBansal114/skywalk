@@ -1,38 +1,13 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import {  useState } from 'react';
 import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { CheckCircle, Calendar, Shield, Users } from 'lucide-react';
 
 export default function PaymentSuccessPage() {
-  const router = useRouter();
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Get session ID from URL query params
-    const { session_id } = router.query;
-    if (session_id) {
-      setSessionId(session_id as string);
-    }
-    setLoading(false);
-  }, [router.query]);
 
-  if (loading) {
-    return (
-      <Layout 
-        title="Payment Processing - Furnish Care"
-        description="Processing your payment..."
-      >
-        <div className="min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50 to-primary-100 py-12 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Processing your payment...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+
 
   return (
     <Layout 
@@ -104,7 +79,7 @@ export default function PaymentSuccessPage() {
           <div className="bg-white rounded-xl border p-6 mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Next Steps</h3>
             <div className="space-y-3">
-              <div className="flex items-start">
+              {/* <div className="flex items-start">
                 <div className="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-medium mr-3 mt-0.5">
                   1
                 </div>
@@ -112,11 +87,11 @@ export default function PaymentSuccessPage() {
                   <p className="text-gray-700 font-medium">Complete your profile</p>
                   <p className="text-gray-600 text-sm">Add your furniture details and preferences</p>
                 </div>
-              </div>
+              </div> */}
               
               <div className="flex items-start">
                 <div className="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-medium mr-3 mt-0.5">
-                  2
+                  1
                 </div>
                 <div>
                   <p className="text-gray-700 font-medium">Book your first service</p>
@@ -126,11 +101,11 @@ export default function PaymentSuccessPage() {
               
               <div className="flex items-start">
                 <div className="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-medium mr-3 mt-0.5">
-                  3
+                  2
                 </div>
                 <div>
                   <p className="text-gray-700 font-medium">Enjoy ongoing protection</p>
-                  <p className="text-gray-600 text-sm">Your subscription will automatically renew for 12 months</p>
+                  <p className="text-gray-600 text-sm">You can renew the subscription after 12 months</p>
                 </div>
               </div>
             </div>
@@ -144,22 +119,18 @@ export default function PaymentSuccessPage() {
               </button>
             </Link>
             
-            <Link href="/book-appointment">
-              <button className="bg-secondary-500 hover:bg-secondary-600 text-white font-semibold py-3 px-8 rounded-xl transition-colors">
-                Book First Service
-              </button>
-            </Link>
+
           </div>
 
           {/* Support Info */}
-          <div className="text-center mt-12">
+          {/* <div className="text-center mt-12">
             <p className="text-gray-600 mb-2">
               Need help getting started?
             </p>
             <Link href="/contact" className="text-primary-600 hover:text-primary-700 font-medium">
               Contact our support team
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </Layout>
