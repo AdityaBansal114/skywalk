@@ -26,7 +26,7 @@ if(req.method == "GET"){
     }
 
     return res.status(200).json({ currentStep: progress.currentStep,
-      subscriptionType : progress.subscriptionType
+    subscriptionType : progress.subscriptionType
      });
 
   } catch (error: any) {

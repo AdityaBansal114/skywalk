@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@clerk/nextjs';
 import Layout from '@/components/layout/Layout';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 import DashboardSkeleton from '@/components/ui/DashboardSkeleton';
 import { useGetApi } from '@/lib/apiCallerClient';
@@ -229,7 +228,7 @@ export default function Dashboard() {
                   {canBookService ? 'Eligible for Service' : 'Not Eligible for Service'}
                 </p>
                 <button
-                  onClick={() => setShowServiceModal(true)}
+                  onClick={() => router.push('/book-appointment')}
                   disabled={!canBookService}
                   className={`w-full ${
                     canBookService 

@@ -234,11 +234,19 @@ export default function TimelinePage() {
     },
     {
       id: 3,
-      title: "Payment",
-      description: "Secure payment processing for your subscription",
+      title: "Purchase Subscription",
+      description: "Complete your subscription purchase with secure payment",
       icon: CreditCard,
       status: "upcoming",
-      link: "/user/form",
+      link: "/user/buy-now",
+    },
+    {
+      id: 4,
+      title: "Setup Complete",
+      description: "Your subscription is active and ready to use",
+      icon: Check,
+      status: "upcoming",
+      link: "/dashboard",
     },
   ])
 
@@ -287,7 +295,7 @@ export default function TimelinePage() {
           </div>
 
           {/* Steps Skeleton */}
-          {[1, 2, 3].map((id) => (
+          {[1, 2, 3, 4].map((id) => (
             <div key={id} className="relative flex items-start mb-12 last:mb-0">
               {/* Circle */}
               <div className="relative z-10 flex items-center justify-center w-16 h-16 rounded-full border-4 bg-gray-200 border-gray-300 animate-pulse"></div>

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import {headers} from 'next/headers';
+
 
 // Cal.com API base URL
 const CALCOM_API_BASE = 'https://api.cal.com/v1';

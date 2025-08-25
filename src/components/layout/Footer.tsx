@@ -96,9 +96,9 @@ export default function Footer() {
               © {new Date().getFullYear()} Furnish Care. All rights reserved.
             </p>
             <div className="mt-4 md:mt-0">
-              <p className="text-gray-400 text-sm">
+              {/* <p className="text-gray-400 text-sm">
                 Made with ❤️ for beautiful furniture
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

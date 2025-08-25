@@ -2,96 +2,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Layout from '@/components/layout/Layout';
-
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-
+import { SUBSCRIPTION_PLANS, formatStripeAmount } from '@/lib/stripe-client';
 import { usePostApi } from '@/lib/apiCallerClient';
+
 
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
-const SUBSCRIPTION_PLANS = [
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: 19,
-    frequency: 1,
-    features: [
-      'Annual furniture touch-up service',
-      '90-day grace period protection',
-      'upto 3 pieces',
-      '$100 for each extra peice',
-      'Damage assessment',
-      'Ideal for light home usage, minimal wear'
-    ],
-    stripePrice: 'price_basic_annual'
-  },
-  {
-    id: 'standard',
-    name: 'Standard',
-    price: 29,
-    frequency: 2,
-    features: [
-      'Bi-annual furniture touch-up service',
-      '90-day grace period protection',
-      'upto 5 pieces',
-      '$100 for each extra peice',
-      'Idea for moderate use households'
-    ],
-    stripePrice: 'price_standard_biannual'
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: 49,
-    frequency: 3,
-    features: [
-      'Quarterly (or 1 on-demand/year + 2 scheduled)',
-      '90-day grace period protection',
-      'upto 8 pieces',
-      '$100 for each extra peice',
-      'Ideal for High-use furniture & busy households',
-    ],
-    stripePrice: 'price_premium_quarterly'
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 149,
-    frequency: 2,
-    features: [
-      'Bi-annual maintenance included',
-      '90-day grace period protection',
-      'upto 20 peices',
-      '$100 for each extra peice',
-      'Ideal for Restaurants, hotels, offices and commercial spaces',
-    ],
-    stripePrice: 'price_premium_quarterly'
-  }
-];
 
-const addOnServices = [
-  {
-    name: 'Deep Polish Service',
-    description: 'Intensive polishing and conditioning for heavily worn furniture',
-    price: 'Starting at $75'
-  },
-  {
-    name: 'Refinishing Service',
-    description: 'Complete refinishing for damaged or severely worn furniture',
-    price: 'Starting at $150'
-  },
-  {
-    name: 'Upholstery Cleaning',
-    description: 'Professional cleaning for fabric furniture and cushions',
-    price: 'Starting at $100'
-  },
-  {
-    name: 'Emergency Touch-up',
-    description: 'Quick response service for urgent furniture damage',
-    price: 'Starting at $50'
-  }
-];
 
 export default function Pricing() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -103,42 +22,31 @@ export default function Pricing() {
 
 
     // Demo: Simulate subscription process
-    
-    try{
+
+    try {
       setLoadingPlan(planId);
       console.log(planId)
-      const res = await postApi(`${BACKEND_URL}/api/progress/set`,{
-      subscriptionType: planId
-    })
+      const res = await postApi(`${BACKEND_URL}/api/progress/set`, {
+        subscriptionType: planId
+      })
 
-    if(res.status == 200){
-      setLoadingPlan(null);
-      router.push('/user/progress');
-    }
+      if (res.status == 200) {
+        setLoadingPlan(null);
+        router.push('/user/progress');
+      }
     }
     catch {
-        setLoadingPlan(null);
-        router.push('/sign-in'); 
+      setLoadingPlan(null);
+      router.push('/sign-in');
     }
   };
 
   return (
-    <Layout 
+    <Layout
       title="Pricing - Furnish Care"
       description="Choose the perfect furniture care plan for your needs. All plans include our 90-day grace period protection."
     >
-      {/* Demo Notice */}
-      <div className="bg-blue-50 border-b border-blue-200">
-        <div className="container-width section-padding py-3">
-          <div className="flex items-center justify-center text-sm text-blue-700">
-            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-            <span className="font-medium">Demo Mode:</span>
-            <span className="ml-1">Subscription process is simulated for demonstration</span>
-          </div>
-        </div>
-      </div>
+
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary-50 to-secondary-50 py-16">
@@ -148,7 +56,7 @@ export default function Pricing() {
               Choose Your Perfect Plan
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              All plans include our signature 90-day grace period protection and professional furniture care.
+              Affordable protection, premium care—because your furniture deserves it.
             </p>
           </div>
         </div>
@@ -158,15 +66,15 @@ export default function Pricing() {
       <section className="py-16 bg-white">
         <div className="container-width section-padding">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-10xl mx-auto">
-            {SUBSCRIPTION_PLANS.map((plan) => (
+            {Object.values(SUBSCRIPTION_PLANS).map((plan) => (
               <div
                 key={plan.id}
-                className={`card relative ${
-                  plan.id === 'standard' 
-                    ? 'ring-2 ring-primary-500 shadow-xl' 
+                className={`card relative flex flex-col justify-between ${plan.id === 'standard'
+                    ? 'ring-2 ring-primary-500 shadow-xl'
                     : 'hover:shadow-xl transition-shadow'
-                }`}
+                  }`}
               >
+                <div>
                 {plan.id === 'standard' && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <span className="bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-medium">
@@ -178,11 +86,19 @@ export default function Pricing() {
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                   <div className="mb-4">
-                    <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+                    <span className="text-4xl font-bold text-gray-900">{formatStripeAmount(plan.price)}</span>
                     <span className="text-gray-500">/month</span>
                   </div>
                   <p className="text-gray-600 mb-6">
-                   {plan.frequency == 1? `` : `Schedule visits upto ${plan.frequency} times per year`}
+                    {plan.name === "Basic"
+                      ? "1 Scheduled service visit per year."
+                      : plan.name === "Standard"
+                        ? "Upto 2 Scheduled service visits per year."
+                        : plan.name === "Premium"
+                          ? "Upto 3 Scheduled service visits per year."
+                          : plan.name === "Enterprise"
+                            ? "Upto 2 Scheduled service visits per year."
+                            : ""}
                   </p>
                 </div>
 
@@ -196,15 +112,14 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-
+                </div>
                 <button
                   onClick={() => handlePlanSelection(plan.id)}
                   disabled={loadingPlan === plan.id}
-                  className={`block w-full text-center py-3 px-4 rounded-xl font-medium transition-colors disabled:opacity-50 ${
-                    plan.id === 'standard'
+                  className={`block w-full text-center py-3 px-4 rounded-xl font-medium transition-colors disabled:opacity-50 ${plan.id === 'standard'
                       ? 'bg-primary-600 hover:bg-primary-700 text-white'
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                  }`}
+                    }`}
                 >
                   {loadingPlan === plan.id ? (
                     <div className="flex items-center justify-center">
@@ -279,7 +194,7 @@ export default function Pricing() {
                   Professional Guarantee
                 </h4>
                 <p className="text-primary-700">
-                  Our certified technicians use premium products and proven techniques. 
+                  Our certified technicians use premium products and proven techniques.
                   If you're not completely satisfied with our service, we'll make it right or provide a full refund.
                 </p>
               </div>
@@ -337,14 +252,14 @@ export default function Pricing() {
               Join thousands of satisfied customers who trust their furniture care to our professionals.
             </p>
             {!user ? (
-              <Link 
-                href="/auth/signup" 
+              <Link
+                href="/auth/signup"
                 className="inline-block bg-white text-primary-600 font-semibold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors"
               >
                 Get Started Now
               </Link>
             ) : (
-              <button 
+              <button
                 onClick={() => handlePlanSelection('standard')}
                 className="inline-block bg-white text-primary-600 font-semibold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors"
               >

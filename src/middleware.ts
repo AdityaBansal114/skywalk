@@ -1,25 +1,40 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import { createRouteMatcher } from "@clerk/nextjs/server";
 
+// Public routes (no auth required)
 const isPublicRoute = createRouteMatcher([
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/',
-  '/pricing',
-  '/user/t&c',
-  '/(.*)'
-])
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/pricing",
+  "/user/t&c",
+]);
+
+// Webhook routes (must bypass Clerk)
+const isWebhookRoute = createRouteMatcher([
+  "/api/webhook(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect()
+  // Skip Clerk on webhook routes
+  if (isWebhookRoute(req)) {
+    return NextResponse.next();
   }
-})
+
+  // Allow public routes
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
+  }
+
+  // Protect everything else
+  await auth.protect(); // ✅ correct in Clerk v5+
+  return NextResponse.next();
+});
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
+    "/((?!_next|.*\\..*).*)", // all pages except static assets
+    "/api/(.*)",              // all API routes
   ],
-}
+};
