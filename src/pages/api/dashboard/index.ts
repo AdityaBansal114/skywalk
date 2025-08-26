@@ -20,6 +20,9 @@ export default async function GET(req: NextApiRequest, res: NextApiResponse) {
       include: {
         subscriptions: {
           orderBy: { buyDate: 'desc' }
+        },
+        payments: {
+          orderBy: { createdAt: 'desc' }
         }
       }
     });
@@ -35,7 +38,8 @@ export default async function GET(req: NextApiRequest, res: NextApiResponse) {
 
     return res.status(200).json({
       user,
-      canBookService
+      canBookService,
+      payments: user.payments,
     });
 
   } catch (error: any) {
@@ -43,6 +47,5 @@ export default async function GET(req: NextApiRequest, res: NextApiResponse) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
-
 
 

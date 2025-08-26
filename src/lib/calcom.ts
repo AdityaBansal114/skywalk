@@ -1,54 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
+import { headers } from 'next/headers';
 
 
 // Cal.com API base URL
 const CALCOM_API_BASE = 'https://api.cal.com/v1';
 
-// Types for Cal.com API
-export interface CalComEventType {
-  id: number;
-  title: string;
-  slug: string;
-  length: number;
-  seatsShowAttendees: boolean;
-}
 
-export interface CalComAvailabilityOverride {
-  id: number;
-  date: string;
-  startTime: string;
-  endTime: string;
-  available: boolean;
-  seatsPerDay?: number;
-}
-
-export interface CalComBooking {
-  id: number;
-  uid: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  attendees: Array<{
-    name: string;
-    email: string;
-  }>;
-  eventType: {
-    id: number;
-    title: string;
-  };
-}
-interface CalComBookingsResponse {
-  bookings: CalComBooking[];
-  recurringInfo: any[];
-  totalCount: number;
-  nextCursor: string | null;
-}
-
-export interface CalComApiResponse<T> {
-  data: T;
-  message?: string;
-  error?: string;
-}
 
 // Cal.com API client class
 class CalComClient {
@@ -77,12 +34,23 @@ class CalComClient {
     return { apiKey: this.apiKey };
   }
 
-
+  async getDailyCapacity() {
+    const response = await axios.get(
+      `${CALCOM_API_BASE}/event-types/${this.eventTypeId}`,
+      { params: this.getApiKeyParam(),
+        headers:{
+          'Authorization': `Bearer ${this.apiKey}`
+        }
+      },
+      
+    );
+    return response.data.event_type.seatsPerTimeSlot;
+  }
 
   // Update event type daily capacity
-  async updateDailyCapacity(capacity: number): Promise<CalComEventType>  {
+  async updateDailyCapacity(capacity: number)  {
     try {
-      const response: AxiosResponse<CalComApiResponse<CalComEventType>> = await axios.patch(
+      const response = await axios.patch(
         `${CALCOM_API_BASE}/event-types/${this.eventTypeId}`,
         { seatsPerTimeSlot: capacity },
         { 
@@ -147,25 +115,35 @@ class CalComClient {
 }
 
 
+
+
   // Get all bookings for the event type
-  async getBookings(date?: string): Promise<CalComBooking[]> {
+  async getBookings(date?: string) {
     try {
       const params: any = {
-        eventTypeId: this.eventTypeId,
-      };
+      eventTypeId: this.eventTypeId,
+    };
 
-      if (date) {
-        params.dateFrom = date;
-        params.dateTo = date;
-      }
+    if (date) {
+      const startDate = new Date(date);
+      const nextDate = new Date(startDate);
+      nextDate.setDate(startDate.getDate() + 1);
 
-      const response: AxiosResponse<{ status: string; data: CalComBookingsResponse }> = await axios.get(
+      console.log(startDate)
+      console.log(nextDate)
+
+      params.afterStart = startDate.toISOString();
+      params.beforeEnd = nextDate.toISOString();
+      params.status ="upcoming"
+    }
+
+      const response: AxiosResponse<{ status: string; data: any }> = await axios.get(
         `https://api.cal.com/v2/bookings`,
         {
-          params: { ...params, afterStart : date},
+          params,
           headers:{
             'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
+            'cal-api-version' : "2024-08-13"
           }
         }
       );
@@ -174,8 +152,10 @@ class CalComClient {
       if (!response) {
         throw new Error(response);
       }
+      console.log(response.data.data)
 
-      return response.data.data.bookings || [];
+      return response.data.data || [];
+
     } catch (error: any) {
       console.error('Error fetching bookings:', error);
       throw new Error(`Failed to fetch bookings: ${error.message}`);

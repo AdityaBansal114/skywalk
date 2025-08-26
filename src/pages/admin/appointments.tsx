@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
+import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +21,6 @@ import {
 import DirectBookingLink from '@/components/DirectBookingLink';
 import { usePostApi, useGetApi } from '@/lib/apiCallerClient';
 
-
 interface Appointment {
   id: number;
   name: string;
@@ -31,7 +31,32 @@ interface Appointment {
 
 interface DailyCapacity {
   current: number;
-  max: number;
+}
+
+interface QuickStats {
+  todayBookings: number;
+  availableSlots: number;
+  totalCapacity: number;
+}
+
+interface GetCapacityResponse {
+  success: boolean;
+  data: {
+    current: number;
+  };
+}
+
+interface SetCapacityResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    currentCapacity: number;
+  };
+  error?: string;
+}
+
+interface BookingsResponse {
+  bookings: Appointment[];
 }
 const SCHEDULE_ID = process.env.NEXT_PUBLIC_CALCOM_SCHEDULE_ID;
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string
@@ -39,123 +64,174 @@ const USERNAME = process.env.NEXT_PUBLIC_CALCOM_USERNAME as string
 const EVENT_TYPE_SLUG = process.env.NEXT_PUBLIC_CALCOM_EVENT_TYPE_SLUG as string
 
 const AdminAppointmentsPage: NextPage = () => {
-  const [dailyCapacity, setDailyCapacity] = useState<DailyCapacity>({ current: 2, max: 10 });
-  const [newCapacity, setNewCapacity] = useState<number>(2);
+  const [dailyCapacity, setDailyCapacity] = useState<DailyCapacity>({ current: 0 });
+  const [newCapacity, setNewCapacity] = useState<number>(0);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCapacityLoading, setIsCapacityLoading] = useState(false);
   const [isRefreshLoading, setIsRefreshLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [quickStats, setQuickStats] = useState({
+  const [quickStats, setQuickStats] = useState<QuickStats>({
     todayBookings: 0,
     availableSlots: 0,
     totalCapacity: 0
   });
-  const [isStatsLoading, setIsStatsLoading] = useState(false);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const postApi = usePostApi();
   const getApi = useGetApi();
 
-  // Mock data - replace with real API calls
+  // Initial data fetch on component mount
   useEffect(() => {
-    // Simulate loading appointments
-    const mockAppointments: Appointment[] = [];
-    setAppointments(mockAppointments);
-    
-    // Load quick stats
-    loadQuickStats();
+    const initializeData = async () => {
+      try {
+        setIsStatsLoading(true);
+        await Promise.all([
+          fetchDailyCapacity(),
+          loadQuickStats()
+        ]);
+      } catch (error) {
+        console.error('Failed to initialize data:', error);
+        showMessage('error', 'Failed to load initial data');
+      } finally {
+        setIsStatsLoading(false);
+        setIsInitialLoad(false);
+      }
+    };
+
+    initializeData();
   }, []);
 
-  const loadQuickStats = async () => {
-    setIsStatsLoading(true);
+  // Fetch daily capacity from backend
+  const fetchDailyCapacity = async (): Promise<number> => {
     try {
-      // Get today's date in YYYY-MM-DD format
-      const today = new Date().toISOString().split('T')[0];
-      
-      // Fetch today's appointments using backend API
-      const response = await getApi(`${BACKEND_URL}/api/bookings?date=${today}`);
-      if (response.status == 200) {
-        const result = await response.data;
-        const todayBookings = result.count;
-        
-        // Calculate available slots
-        const availableSlots = Math.max(0, dailyCapacity.current - todayBookings);
-        
-        setQuickStats({
-          todayBookings: todayBookings,
-          availableSlots,
-          totalCapacity: dailyCapacity.current
-        });
+      const response = await getApi<GetCapacityResponse>(`${BACKEND_URL}/api/admin/get-daily-capacity`);
+      if (response.status === 200 && response.data.success) {
+        const capacity = response.data.data.current;
+        setDailyCapacity({ current: capacity });
+        setNewCapacity(capacity);
+        return capacity;
+      } else {
+        throw new Error('Failed to fetch capacity');
       }
-    } catch (error) {
-      console.error('Failed to load quick stats:', error);
-      // Fallback to default values
-      setQuickStats({
-        todayBookings: 0,
-        availableSlots: dailyCapacity.current,
-        totalCapacity: dailyCapacity.current
-      });
-    } finally {
-      setIsStatsLoading(false);
+    } catch (error: any) {
+      console.error('Error fetching daily capacity:', error);
+      showMessage('error', error.message || 'Failed to fetch daily capacity');
+      // Return fallback value
+      return dailyCapacity.current || 2;
     }
   };
+
+  const loadQuickStats = async () => {
+    if (!isInitialLoad) {
+      setIsStatsLoading(true);
+    }
+    
+    try {
+      const today = new Date().toISOString().split('T')[0];
+
+      // For initial load, use the capacity we already fetched
+      // For subsequent calls, only fetch capacity if we don't have a recent update
+      let capacity = dailyCapacity.current;
+      if (isInitialLoad || capacity === 0) {
+        capacity = await fetchDailyCapacity();
+      }
+
+      const bookings = await fetchBookingsForDate(today);
+      const todayBookings = bookings.length;
+      const availableSlots = Math.max(0, capacity - todayBookings);
+
+      setQuickStats(prevStats => ({
+        todayBookings,
+        availableSlots,
+        // Only update totalCapacity if we don't have a more recent local update
+        totalCapacity: prevStats.totalCapacity !== 0 && !isInitialLoad ? prevStats.totalCapacity : capacity,
+      }));
+
+      // Also set today's appointments
+      setAppointments(bookings);
+      setSelectedDate(today);
+    } catch (error) {
+      console.error('Failed to load quick stats:', error);
+      if (!isInitialLoad) {
+        showMessage('error', 'Failed to refresh stats');
+      }
+      setQuickStats(prevStats => ({
+        todayBookings: 0,
+        availableSlots: Math.max(0, prevStats.totalCapacity),
+        totalCapacity: prevStats.totalCapacity || dailyCapacity.current || 2,
+      }));
+    } finally {
+      if (!isInitialLoad) {
+        setIsStatsLoading(false);
+      }
+    }
+  };
+
 
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 5000);
   };
 
-  const handleSetCapacity = async () => {
-    if (newCapacity < 1) {
+  const handleSetCapacity = async (newCapacityValue: number) => {
+    if (newCapacityValue < 1) {
       showMessage('error', 'Capacity must be at least 1');
       return;
     }
 
     setIsCapacityLoading(true);
     try {
-      // Update capacity using backend API
-      const response = await postApi(`${BACKEND_URL}/api/set-daily-capacity`, { capacity: newCapacity });
+      // Call backend to set capacity
+      const response = await postApi<SetCapacityResponse>(`${BACKEND_URL}/api/set-daily-capacity`, { 
+        capacity: newCapacityValue 
+      });
 
-      if (response.status == 200) {
-        const result = await response.data
-        setDailyCapacity({ current: newCapacity, max: newCapacity });
-        showMessage('success', result.message || `Daily capacity updated to ${newCapacity} appointments`);
+      if (response.status === 200 && response.data.success) {
+        // Update local state immediately on success
+        setDailyCapacity({ current: newCapacityValue });
+        setNewCapacity(newCapacityValue);
         
-        // Reload quick stats after capacity update
-        await loadQuickStats();
+        // Update quickStats to reflect the new capacity
+        setQuickStats(prevStats => ({
+          ...prevStats,
+          totalCapacity: newCapacityValue,
+          availableSlots: Math.max(0, newCapacityValue - prevStats.todayBookings),
+        }));
+
+        showMessage('success', response.data.message || `Daily capacity updated to ${newCapacityValue} appointments`);
       } else {
-        throw new Error('Failed to update capacity');
+        throw new Error(response.data.error || 'Failed to update capacity');
       }
     } catch (error: any) {
-      showMessage('error', error.message || 'Failed to update capacity');
+      console.error('Error updating capacity:', error);
+      showMessage('error', error.response?.data?.message || error.message || 'Failed to update capacity');
     } finally {
       setIsCapacityLoading(false);
     }
   };
 
-  const fetchAppointments = async (date: string) => {
-    setIsRefreshLoading(true);
+  const fetchBookingsForDate = async (date: string): Promise<Appointment[]> => {
     try {
-      // Fetch appointments using backend API
-      const response = await getApi(`${BACKEND_URL}/api/bookings?date=${date}`);
-      if (response.status == 200) {
-        const result = await response.data;
-        setAppointments(result.bookings);
-        
-        // If viewing today's appointments, refresh quick stats
-        const today = new Date().toISOString().split('T')[0];
-        if (date === today) {
-          await loadQuickStats();
-        }
+      const response = await getApi<BookingsResponse>(`${BACKEND_URL}/api/bookings?date=${date}`);
+      if (response.status === 200) {
+        return response.data.bookings || [];
       } else {
-        throw new Error('Failed to fetch appointments');
+        throw new Error('Failed to fetch bookings');
       }
     } catch (error: any) {
-      showMessage('error', error.message || 'Failed to fetch appointments');
-    } finally {
-      setIsRefreshLoading(false);
+      console.error('Error fetching bookings:', error);
+      if (!isInitialLoad) {
+        showMessage('error', error.message || 'Failed to fetch bookings');
+      }
+      return [];
     }
   };
+
+
+
+
 
   const handleRefreshAll = async () => {
     setIsLoading(true);
@@ -165,7 +241,7 @@ const AdminAppointmentsPage: NextPage = () => {
       
       // Refresh appointments if a date is selected
       if (selectedDate) {
-        await fetchAppointments(selectedDate);
+        await fetchBookingsForDate(selectedDate);
       }
       
       showMessage('success', 'Data refreshed successfully');
@@ -292,7 +368,7 @@ const AdminAppointmentsPage: NextPage = () => {
                       />
                     </div>
                     <Button
-                      onClick={handleSetCapacity}
+                      onClick={() => handleSetCapacity(newCapacity)}
                       disabled={isCapacityLoading}
                       className="mt-6"
                     >
@@ -412,10 +488,13 @@ const AdminAppointmentsPage: NextPage = () => {
                       <select
                         id="viewDate"
                         value={selectedDate}
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           setSelectedDate(e.target.value);
                           if (e.target.value) {
-                            fetchAppointments(e.target.value);
+                            setIsRefreshLoading(true);
+                            const bookings = await fetchBookingsForDate(e.target.value);
+                            setAppointments(bookings);
+                            setIsRefreshLoading(false);
                           }
                         }}
                         className="w-full p-2 border border-gray-300 rounded-md mt-1"
@@ -430,7 +509,14 @@ const AdminAppointmentsPage: NextPage = () => {
                       </select>
                     </div>
                     <Button
-                      onClick={() => selectedDate && fetchAppointments(selectedDate)}
+                      onClick={async () => {
+                        if (selectedDate) {
+                          setIsRefreshLoading(true);
+                          const bookings = await fetchBookingsForDate(selectedDate);
+                          setAppointments(bookings);
+                          setIsRefreshLoading(false);
+                        }
+                      }}
                       disabled={isRefreshLoading || !selectedDate}
                       className="mt-6"
                     >

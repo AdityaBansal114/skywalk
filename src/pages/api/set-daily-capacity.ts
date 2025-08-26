@@ -9,12 +9,14 @@ interface SetCapacityResponse {
   success: boolean;
   message: string;
   data?: {
-    id: number;
-    title: string;
-    seatsPerDay: number;
+    currentCapacity: number;
   };
   error?: string;
 }
+
+// Simple in-memory cache for daily capacity
+// In production, consider using Redis or database for persistence
+
 
 export default async function handler(
   req: NextApiRequest,
@@ -43,9 +45,14 @@ export default async function handler(
     // Update daily capacity using Cal.com client
     const updatedEventType = await calComClient.updateDailyCapacity(capacity);
 
+
+
     return res.status(200).json({
       success: true,
       message: `Daily capacity updated to ${capacity} appointments`,
+      data: {
+        currentCapacity: capacity,
+      }
     });
 
   } catch (error: any) {
