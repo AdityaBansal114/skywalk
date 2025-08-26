@@ -48,6 +48,7 @@ model Payment{
   id                      String                @id @default(uuid())
   invoiceId               String                @unique
   invoiceLink             String?
+  isCancelPayment         Boolean               @default(false)
   subscriptionId          String
   subscription            Subscription          @relation(fields: [subscriptionId],references: [id])
   userId                  String

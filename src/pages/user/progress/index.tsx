@@ -47,6 +47,14 @@ export default function TimelinePage() {
       status: "upcoming",
       link: "/user/buy-now",
     },
+    {
+      id: 4,
+      title: "Book Appointment",
+      description: "Enjoy your time with Furnish Care",
+      icon: CreditCard,
+      status: "upcoming",
+      link: "/dashboard",
+    },
   ])
 
   const getApi = useGetApi()

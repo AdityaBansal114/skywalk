@@ -13,10 +13,16 @@ export const config = {
 async function handleInvoicePaymentSucceeded(invoice: any) {
   try {
 
-    const subscriptionId = invoice.lines.data[0].parent.subscription_item_details.subscription;
+    let subscriptionId = invoice.lines?.data[0]?.parent?.subscription_item_details?.subscription;
+    let isCancelInvoice = false;
+    console.log('1')
     if (!subscriptionId) {
-      console.error('Missing subscriptionId in invoice:', invoice.id);
-      return;
+        subscriptionId = invoice.parent.subscription_details.subscription;
+        isCancelInvoice = true;
+        if(!subscriptionId){
+          console.log("error subscripionId not found in invoice");
+          return;
+        }
     }
 
 
@@ -57,7 +63,7 @@ async function handleSubscriptionDeleted(subscription: any) {
     const stripeSubscriptionId = subscription.id;
 
     // Update subscription status in database
-    await db.subscription.update({
+    const sub = await db.subscription.update({
       where: {
         stripeSubscriptionId
       },
@@ -66,6 +72,26 @@ async function handleSubscriptionDeleted(subscription: any) {
         serviceEndTime: new Date().toISOString()
       }
     });
+
+    const userId = sub.userId;
+
+    const user = await db.user.findUnique({
+      where:{
+        id: userId
+      },
+      select:{
+        clerkId: true
+      }
+    })
+
+    const clerkId = user!.clerkId
+
+    await db.progress.delete({
+      where:{
+        clerkId
+      }
+    })
+
 
     console.log(`Subscription ${subscription.id} cancelled for user`);
   } catch (error) {
@@ -159,23 +185,33 @@ async function handleCheckoutSessionCompleted(session: any) {
     })
 
 
-
-    const progress = await db.progress.findUnique({
-      where: {
+    await db.progress.update({
+      where:{
         clerkId
       },
-      select: {
-        id: true
+      data:{
+        currentStep: 4
       }
     })
 
-    if (progress) {
-      await db.progress.delete({
-        where: {
-          id: progress.id
-        }
-      })
-    }
+
+
+    // const progress = await db.progress.findUnique({
+    //   where: {
+    //     clerkId
+    //   },
+    //   select: {
+    //     id: true
+    //   }
+    // })
+
+    // if (progress) {
+    //   await db.progress.delete({
+    //     where: {
+    //       id: progress.id
+    //     }
+    //   })
+    // }
 
 
     console.log('🔄 Checkout session completed:', session.id);

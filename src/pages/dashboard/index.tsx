@@ -41,6 +41,7 @@ interface DashboardData {
       invoiceId: string;
       invoiceLink: string | null;
       createdAt: string;
+      isCancelPayment : Boolean
       subscription: {
         id: string;
         subscriptionType: string;
@@ -53,6 +54,7 @@ interface DashboardData {
     invoiceId: string;
     invoiceLink: string | null;
     createdAt: string;
+    isCancelPayment : Boolean
     subscription: {
       id: string;
       subscriptionType: string;
@@ -448,7 +450,7 @@ export default function Dashboard() {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h4 className="font-medium text-gray-900">
-                          {payment.subscription.subscriptionType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} Payment
+                          {payment.subscription.subscriptionType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} {payment.isCancelPayment == true? 'plan cancellation fee' : 'plan installment'}
                         </h4>
                         <p className="text-sm text-gray-600">
                           Invoice ID: {payment.invoiceId}
