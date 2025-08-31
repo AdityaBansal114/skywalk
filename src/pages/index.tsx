@@ -130,6 +130,7 @@ export default function Home() {
                     <p className="text-gray-600">Secure your investment from unexoected damage.</p>
                   </div>
                 </div>
+                
 
                 <div className="flex items-start">
                   <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
