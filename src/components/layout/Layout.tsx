@@ -11,7 +11,7 @@ interface LayoutProps {
 
 export default function Layout({ 
   children, 
-  title = 'Furniture Wellness - Professional Furniture Care',
+  title = 'Furnish Care',
   description = 'Professional furniture care and maintenance subscription service. Keep your furniture looking beautiful with our expert touch-up services.'
 }: LayoutProps) {
   return (

@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { buffer } from 'micro';
 import { stripe, SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import { db } from '@/lib/db';
-// import stripe from '@/lib/stripe';
 import calculateServiceTime from '@/lib/serviceTimeCal';
 export const config = {
   api: {
@@ -139,7 +138,7 @@ async function handleCheckoutSessionCompleted(session: any) {
           clerkId
         },
         select: {
-          agreementURL: true
+          S3key: true
         }
       })
       const plan = SUBSCRIPTION_PLANS[planId as keyof typeof SUBSCRIPTION_PLANS];
@@ -155,7 +154,7 @@ async function handleCheckoutSessionCompleted(session: any) {
           buyDate: new Date(),
           serviceStartTime: serviceStartTime.toISOString(),
           serviceEndTime: serviceEndTime.toISOString(),
-          agreementURL: progress!.agreementURL || '',
+          S3key: progress!.S3key || '',
           servicesLeft: plan.frequency
         }
       })

@@ -260,7 +260,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
 // --- Validation Helpers ---
 const sanitizeInput = (value: string) => {
-  return value.replace(/<[^>]*>?/gm, "").trim(); // remove tags + trim
+  return value.replace(/<[^>]*>?/gm, ""); // remove tags, but keep spaces
 };
 
 const validateEmail = (email: string) => {

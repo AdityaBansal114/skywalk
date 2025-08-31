@@ -24,7 +24,7 @@ interface DashboardData {
       buyDate: string;
       serviceStartTime: string;
       serviceEndTime: string;
-      agreementURL: string;
+      S3key: string;
       servicesLeft: number;
       stripeSubscriptionId: string;
       createdAt: string;
@@ -230,7 +230,7 @@ export default function Dashboard() {
               Welcome back, {userProfile.fullName}
             </h1>
             <p className="text-gray-600">
-              Manage your furniture care subscription and schedule services
+              Manage your furnish care subscription and schedule services
             </p>
             {isSignedIn && (
               <p className="text-sm text-gray-500 mt-1">
@@ -256,14 +256,14 @@ export default function Dashboard() {
                     {userProfile?.subscriptions?.length || 0}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                {/* <div className="flex justify-between items-center">
                   <span className="text-gray-600">Email:</span>
                   <span className="text-sm text-gray-900">{userProfile.email}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Phone:</span>
                   <span className="text-sm text-gray-900">{userProfile.phone}</span>
-                </div>
+                </div> */}
               </div>
             </div>
 

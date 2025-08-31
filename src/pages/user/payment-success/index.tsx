@@ -42,7 +42,7 @@ export default function PaymentSuccessPage() {
               What Happens Next?
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-8 h-8 text-blue-600" />
@@ -50,16 +50,6 @@ export default function PaymentSuccessPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Schedule Your First Service</h3>
                 <p className="text-gray-600 text-sm">
                   Book your first furniture touch-up appointment at your convenience
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shield className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">90-Day Protection Active</h3>
-                <p className="text-gray-600 text-sm">
-                  Your grace period protection is now active for all covered furniture
                 </p>
               </div>
 

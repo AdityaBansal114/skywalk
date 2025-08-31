@@ -131,11 +131,11 @@ export default function BuyNowPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
               <h3 className="text-lg font-semibold text-blue-900 mb-3">What You're Getting</h3>
               <ul className="space-y-2 text-blue-800">
-                <li>• <strong>12-month subscription</strong> with automatic cancellation after completion</li>
-                <li>• <strong>90-day grace period protection</strong> included in every plan</li>
+                {/* <li>• <strong>12-month subscription</strong> with automatic cancellation after completion</li> */}
+                {/* <li>• <strong>90-day grace period protection</strong> included in every plan</li> */}
                 <li>• <strong>Professional furniture care</strong> by certified technicians</li>
                 <li>• <strong>Flexible scheduling</strong> based on your plan frequency</li>
-                <li>• <strong>Cancel anytime</strong> with a one-time $20 fee</li>
+                {/* <li>• <strong>Cancel anytime</strong> with a one-time $20 fee</li> */}
               </ul>
             </div>
 

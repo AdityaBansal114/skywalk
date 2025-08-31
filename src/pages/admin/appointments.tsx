@@ -184,7 +184,7 @@ const AdminAppointmentsPage: NextPage = () => {
     setIsCapacityLoading(true);
     try {
       // Call backend to set capacity
-      const response = await postApi<SetCapacityResponse>(`${BACKEND_URL}/api/set-daily-capacity`, { 
+      const response = await postApi<SetCapacityResponse>(`${BACKEND_URL}/api/admin/set-daily-capacity`, { 
         capacity: newCapacityValue 
       });
 
@@ -214,7 +214,7 @@ const AdminAppointmentsPage: NextPage = () => {
 
   const fetchBookingsForDate = async (date: string): Promise<Appointment[]> => {
     try {
-      const response = await getApi<BookingsResponse>(`${BACKEND_URL}/api/bookings?date=${date}`);
+      const response = await getApi<BookingsResponse>(`${BACKEND_URL}/api/admin/bookings?date=${date}`);
       if (response.status === 200) {
         return response.data.bookings || [];
       } else {

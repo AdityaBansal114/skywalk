@@ -1,8 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PDFDocument, PDFImage, rgb, StandardFonts } from 'pdf-lib';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import fs from 'fs';
 import path from 'path';
+import {getAuth} from '@clerk/nextjs/server';
+import {db} from '@/lib/db';
+
 
 interface SignAgreementRequest {
   fullName: string;
@@ -19,13 +23,24 @@ interface SignAgreementResponse {
 }
 
 // Initialize S3 client
-const s3Client = new S3Client({
+export const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 });
+
+export async function getDownloadLink(s3Key: string) {
+  const command = new GetObjectCommand({
+    Bucket: process.env.AWS_S3_BUCKET!,
+    Key: s3Key,
+  });
+
+  // Signed URL valid for 1 hour
+  return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+}
+
 
 // Helper function to get client IP
 const getClientIP = (req: NextApiRequest): string => {
@@ -41,57 +56,6 @@ const base64ToUint8Array = (base64: string): Uint8Array => {
   return new Uint8Array(binaryData);
 };
 
-// Helper function to add text to PDF
-// const addTextToPDF = (pdfDoc: PDFDocument, text: string, x: number, y: number, fontSize: number = 12) => {
-//   const page = pdfDoc.getPages()[0];
-//   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  
-//   page.drawText(text, {
-//     x,
-//     y,
-//     size: fontSize,
-//     font,
-//     color: rgb(0, 0, 0),
-//   });
-// };
-// Helper function to add text to PDF
-// const addTextToPDF = async (
-//     pdfDoc: PDFDocument,
-//     text: string,
-//     x: number,
-//     y: number,
-//     fontSize: number = 12
-//   ) => {
-//     const page = pdfDoc.getPages()[0];
-//     const font = await pdfDoc.embedFont(StandardFonts.Helvetica); // <-- FIXED
-    
-//     page.drawText(text, {
-//       x,
-//       y,
-//       size: fontSize,
-//       font,
-//       color: rgb(0, 0, 0),
-//     });
-//   };
-  
-
-// // Helper function to add image to PDF
-// const addImageToPDF = async (pdfDoc: PDFDocument, imageData: Uint8Array, x: number, y: number, width: number, height: number) => {
-//   try {
-//     const page = pdfDoc.getPages()[0];
-//     const image = await pdfDoc.embedPng(imageData);
-    
-//     page.drawImage(image, {
-//       x,
-//       y,
-//       width,
-//       height,
-//     });
-//   } catch (error) {
-//     console.error('Error adding image to PDF:', error);
-//     throw new Error('Failed to add signature image to PDF');
-//   }
-// };
 
 const addTextToPDF = async (
   pdfDoc: PDFDocument,
@@ -157,11 +121,11 @@ export default async function handler(
   }
 
   try {
-    const { fullName, email, signature, timestamp }: SignAgreementRequest = req.body;
+    const { email, signature, timestamp }: SignAgreementRequest = req.body;
     const clientIP = getClientIP(req);
 
     // Validate required fields
-    if (!fullName || !email || !signature || !timestamp) {
+    if ( !email || !signature || !timestamp) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields',
@@ -178,6 +142,35 @@ export default async function handler(
         error: 'Please provide a valid email address'
       });
     }
+
+    const { userId: clerkId } = getAuth(req);
+
+    if(!clerkId){
+      return res.status(400).json({success : false , message : "Unauthenticated"});
+    }
+
+    const user = await db.user.findUnique({
+      where:{
+        clerkId
+      },select:{
+        email: true,
+        fullName: true,
+        id: true,
+        address: true,
+        phone: true
+      }
+    })
+
+    if(!user){
+      return res.status(400).json({success : false , message : "Unauthenticated"});
+
+    }
+
+    if(email !== user.email){
+      return res.status(400).json({success : false , message : "Unauthenticated"});
+
+    }
+
 
     // Load the PDF template
     const pdfPath = path.join(process.cwd(), 'public', 'agreements', 'service-agreement-v1.pdf');
@@ -212,10 +205,10 @@ export default async function handler(
 
     // Add customer details
 // Page 1 fields
-await addTextToPDF(pdfDoc, `Customer Name: ${fullName}`, 80, 570, 12, 0);
+await addTextToPDF(pdfDoc, `Customer Name: ${user.fullName}`, 80, 570, 12, 0);
 await addTextToPDF(pdfDoc, `Email: ${email}`, 80, 550, 12, 0);
-await addTextToPDF(pdfDoc, `Address: ${req.body.address}`, 80, 530, 12, 0);
-await addTextToPDF(pdfDoc, `Phone: ${req.body.phone}`, 80, 510, 12, 0);
+await addTextToPDF(pdfDoc, `Address: ${user.address}`, 80, 530, 12, 0);
+await addTextToPDF(pdfDoc, `Phone: ${user.phone}`, 80, 510, 12, 0);
 await addTextToPDF(pdfDoc, `Date: ${new Date(timestamp).toLocaleDateString()}`, 80, 490, 12, 0);
 
 // Last page signature
@@ -225,84 +218,43 @@ await addTextToPDF(pdfDoc, 'Company Representative: [Your Company Name]', 330, 1
 
 
 
-    // Serialize the PDF
-    // const modifiedPdfBytes = await pdfDoc.save();
+    //Serialize the PDF
+    const modifiedPdfBytes = await pdfDoc.save();
 
-    // // Generate unique filename
-    // const fileName = `signed-agreement-${fullName.replace(/\s+/g, '-')}-${Date.now()}.pdf`;
-    // const s3Key = `signed-agreements/${fileName}`;
+    // Generate unique filename
+    const fileName = `${user.fullName.replace(/\s+/g, '-')}-${user.id}-${Date.now()}.pdf`;
+    const s3Key = `signed-agreements/${fileName}`;
 
-    // Upload to S3
-    // const uploadCommand = new PutObjectCommand({
-    //   Bucket: process.env.AWS_S3_BUCKET!,
-    //   Key: s3Key,
-    //   Body: modifiedPdfBytes,
-    //   ContentType: 'application/pdf',
-    //   Metadata: {
-    //     'customer-name': fullName,
-    //     'customer-email': email,
-    //     'signature-date': timestamp,
-    //     'client-ip': clientIP,
-    //     'original-template': 'service-agreement-v1.pdf'
-    //   }
-    // });
+    //Upload to S3
+    const uploadCommand = new PutObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET!,
+      Key: s3Key,
+      Body: modifiedPdfBytes,
+      ContentType: 'application/pdf',
+      Metadata: {
+        'customer-name': user.fullName,
+        'customer-email': email,
+        'userId' : user.id,
+        'signature-date': timestamp,
+      }
+    });
 
-    // await s3Client.send(uploadCommand);
-
-    // Generate S3 URL
-    // const s3Url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
-    const s3Url = "deomo_url";
-
-// Serialize the PDF
-const modifiedPdfBytes = await pdfDoc.save();
-
-// Generate unique filename
-const fileName = `signed-agreement-${fullName.replace(/\s+/g, '-')}-${Date.now()}.pdf`;
-
-// Save locally to /public/signed-agreements
-const localDir = path.join(process.cwd(), 'public', 'signed-agreements');
-fs.mkdirSync(localDir, { recursive: true }); // ensure folder exists
-const localPath = path.join(localDir, fileName);
-fs.writeFileSync(localPath, modifiedPdfBytes);
-
-// Local URL (Next.js serves everything under /public as static files)
-const signedPdfUrl = `/signed-agreements/${fileName}`;
+    await s3Client.send(uploadCommand);
 
 
-    // logging logic //
+    await db.progress.update({
+      where:{
+        clerkId
+      },
+      data:{
+        S3key: s3Key,
+        currentStep: 3
+      }
+    })
 
-    // Log the agreement signing (you can replace this with database storage later)
-    // const agreementLog = {
-    //   customerName: fullName,
-    //   customerEmail: email,
-    //   signatureDate: timestamp,
-    //   clientIP,
-    //   s3Url,
-    //   timestamp: new Date().toISOString()
-    // };
+    const s3Url = await getDownloadLink(s3Key);
 
-    // console.log('Agreement signed successfully:', agreementLog);
 
-    // // You can also save to a JSON file for now
-    // const logFilePath = path.join(process.cwd(), 'agreement-logs.json');
-    // let logs = [];
-    
-    // try {
-    //   if (fs.existsSync(logFilePath)) {
-    //     const existingLogs = fs.readFileSync(logFilePath, 'utf-8');
-    //     logs = JSON.parse(existingLogs);
-    //   }
-    // } catch (error) {
-    //   console.warn('Could not read existing logs, starting fresh');
-    // }
-
-    // logs.push(agreementLog);
-    
-    // try {
-    //   fs.writeFileSync(logFilePath, JSON.stringify(logs, null, 2));
-    // } catch (error) {
-    //   console.warn('Could not write to log file:', error);
-    // }
 
     return res.status(200).json({
       success: true,

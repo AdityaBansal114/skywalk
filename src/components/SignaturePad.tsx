@@ -92,7 +92,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       </div>
       
       <p className="text-sm text-gray-500 mt-2 text-center">
-        Draw your signature above. Use the buttons to clear or rotate the canvas.
+        Draw your signature above. Use the button to clear the canvas.
       </p>
     </div>
   );

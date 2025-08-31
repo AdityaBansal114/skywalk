@@ -6,7 +6,7 @@ export const SUBSCRIPTION_PLANS = {
   basic: {
     id: 'basic',
     name: 'Basic',
-    price: 1900, // $19.00 in cents
+    price: 1999, // $19.00 in cents
     frequency: 1,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PRICE_ID || 'price_basic_annual',
     features: [
@@ -20,7 +20,7 @@ export const SUBSCRIPTION_PLANS = {
   standard: {
     id: 'standard',
     name: 'Standard',
-    price: 2900, // $29.00 in cents
+    price: 2999, // $29.00 in cents
     frequency: 2,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_STANDARD_PRICE_ID || 'price_standard_biannual',
     features: [
@@ -33,8 +33,8 @@ export const SUBSCRIPTION_PLANS = {
   premium: {
     id: 'premium',
     name: 'Premium',
-    price: 4900, // $49.00 in cents
-    frequency: 3,
+    price: 4999, // $49.00 in cents
+    frequency: 2,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID || 'price_premium_quarterly',
     features: [
       'Quarterly (or 1 on-demand/year + 2 scheduled)',
@@ -46,8 +46,8 @@ export const SUBSCRIPTION_PLANS = {
   enterprise: {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 14900, // $149.00 in cents
-    frequency: 3,
+    price: 14999, // $149.00 in cents
+    frequency: 2,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID || 'price_premium_quarterly',
     features: [
       'Bi-annual maintenaince included',
