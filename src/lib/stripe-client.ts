@@ -37,8 +37,8 @@ export const SUBSCRIPTION_PLANS = {
     frequency: 2,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID || 'price_premium_quarterly',
     features: [
-      'Quarterly (or 1 on-demand/year + 2 scheduled)',
-      'Covers up to 7 pieces of furniture',
+      'Bi-annual furniture touch-up service',
+      'Covers up to 8 pieces of furniture',
       '$100 per additional piece',
       'Ideal for High-use furniture and busy households',
     ]

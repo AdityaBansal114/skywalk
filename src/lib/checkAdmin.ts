@@ -1,15 +1,8 @@
-import { auth } from '@clerk/nextjs/server';
+import {  getAuth } from "@clerk/nextjs/server";
+import {NextApiRequest} from "next";
 
-interface CustomSessionClaims {
-  metadata?: {
-    role?: string;
-  };
-}
-
-export const checkAdmin = async () => {
-  const { sessionClaims } = await auth();
-
-  const claims = sessionClaims as unknown as CustomSessionClaims;
-
-  return claims.metadata?.role === "admin";
+export const checkAdmin =  (req: NextApiRequest) => {
+  const { sessionClaims } =  getAuth(req);
+  console.log(sessionClaims)
+  return sessionClaims?.role === "admin";
 };

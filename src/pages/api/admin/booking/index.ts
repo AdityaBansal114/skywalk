@@ -1,5 +1,5 @@
 import { calComClient } from "@/lib/calcom";
-import { db } from "@/lib/db";
+import {checkAdmin} from "@/lib/checkAdmin";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -8,7 +8,7 @@ export default async function GET(
   res: NextApiResponse
 ){
     try {
-        console.log("hello");
+        // console.log("hello");
         if(req.method !== "GET") {
             return res.status(405).json({ error: "Method not allowed, only GET is allowed" });
         }
@@ -17,13 +17,17 @@ export default async function GET(
         if (!clerkId) {
             return res.status(401).json({ error: "Unauthenticated" });
         }
-
+        const isAdmin =  checkAdmin(req);
+        console.log(isAdmin);
+        if(!isAdmin){
+            return res.status(402).json({message: "Not a admin"});
+        }
         const url = await calComClient.generateBookingLink();
 
         return res.status(200).json({url : url});
     }
     catch (error: any) {
-        console.error(`Error in api/user/setDetails: ${error}`);
+        console.error(`Error in api/admin/booking: ${error}`);
         return res.status(500).json({ error: "Internal server error" });
     }
 }

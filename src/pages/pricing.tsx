@@ -95,7 +95,7 @@ export default function Pricing() {
                       : plan.name === "Standard"
                         ? "Upto 2 Scheduled service visits per year."
                         : plan.name === "Premium"
-                          ? "Upto 3 Scheduled service visits per year."
+                          ? "Upto 2 Scheduled service visits per year."
                           : plan.name === "Enterprise"
                             ? "Upto 2 Scheduled service visits per year."
                             : ""}
