@@ -6,6 +6,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useGetApi } from "@/lib/apiCallerClient"
+import Footer from "@/components/layout/Footer"
+import Header from "@/components/layout/Header"
 
 type StepStatus = "completed" | "current" | "upcoming"
 
@@ -124,6 +126,8 @@ export default function TimelinePage() {
 
   // ✅ Actual Content
   return (
+    <>
+    <Header/>
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50 to-primary-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -232,6 +236,8 @@ export default function TimelinePage() {
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   )
 }
 

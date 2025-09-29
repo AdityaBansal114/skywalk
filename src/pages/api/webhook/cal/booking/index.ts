@@ -22,27 +22,27 @@ const handler =   async (
                 return res.status(200).json({message : "cancelled due to user not found"})
             }
 
-            // const sub = await db.subscription.findFirst({
-            //     where:{
-            //         userId : user.id,
-            //         status : "active"
-            //     }
-            // })
+            const sub = await db.subscription.findFirst({
+                where:{
+                    userId : user.id,
+                    status : "active"
+                }
+            })
 
-            //  if(!sub){
-            //     return res.status(200).json({message : "cancelled due to user not found"})
-            // }
+             if(!sub){
+                return res.status(200).json({message : "cancelled due to user not found"})
+            }
 
-            // console.log(sub.id);
+            console.log(sub.id);
 
-            // await db.subscription.update({
-            //     where:{
-            //         id: sub.id
-            //     },
-            //     data:{
-            //         servicesLeft : sub.servicesLeft - 1
-            //     }
-            // })
+            await db.subscription.update({
+                where:{
+                    id: sub.id
+                },
+                data:{
+                    servicesLeft : sub.servicesLeft - 1
+                }
+            })
 
             await db.booking.create({
                 data:{

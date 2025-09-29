@@ -69,43 +69,43 @@ export default async function handler(
     if(feeResult.shouldApplyFee && feeResult.feeAmount > 0) {
       // Create invoice item for cancellation fee (amount in cents)
 
-      // await stripe.invoiceItems.create({
-      //   customer: customerId,
-      //   amount: feeResult.feeAmount * 100,
-      //   currency: 'usd',
-      //   description: 'Early cancellation fee',
-      //   subscription: subscriptionId, // 🔑 attaches fee to final invoice
-      // });
-
-
-      // await stripe.subscriptions.cancel(subscriptionId, {
-      //   invoice_now: true,
-      //   prorate: false,
-      // });
-
-
-      const session = await stripe.checkout.sessions.create({
-        customer: customerId, // optional, can also let Checkout create a new customer
-        line_items: [
-          {
-            price_data: {
-              currency: "usd",
-              product_data: {
-                name: "Cancellation Fee", // or whatever you’re selling
-              },
-              unit_amount: feeResult.feeAmount * 100, // amount in cents → $20.00
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment", // 🔑 one-time payment
-        payment_method_types: ["card", "link"],
-        success_url: `https://georgia-exact-cyber-uri.trycloudflare.com/dashboard`,
-        cancel_url: `https://georgia-exact-cyber-uri.trycloudflare.com/dashboard`,
-        metadata:{
-          subscriptionId, 
-        }
+      await stripe.invoiceItems.create({
+        customer: customerId,
+        amount: feeResult.feeAmount * 100,
+        currency: 'usd',
+        description: 'Early cancellation fee',
+        subscription: subscriptionId, // 🔑 attaches fee to final invoice
       });
+
+
+      await stripe.subscriptions.cancel(subscriptionId, {
+        invoice_now: true,
+        prorate: false,
+      });
+
+
+      // const session = await stripe.checkout.sessions.create({
+      //   customer: customerId, // optional, can also let Checkout create a new customer
+      //   line_items: [
+      //     {
+      //       price_data: {
+      //         currency: "usd",
+      //         product_data: {
+      //           name: "Cancellation Fee", // or whatever you’re selling
+      //         },
+      //         unit_amount: feeResult.feeAmount * 100, // amount in cents → $20.00
+      //       },
+      //       quantity: 1,
+      //     },
+      //   ],
+      //   mode: "payment", // 🔑 one-time payment
+      //   payment_method_types: ["card", "link"],
+      //   success_url: `https://georgia-exact-cyber-uri.trycloudflare.com/dashboard`,
+      //   cancel_url: `https://georgia-exact-cyber-uri.trycloudflare.com/dashboard`,
+      //   metadata:{
+      //     subscriptionId, 
+      //   }
+      // });
 
 
     }

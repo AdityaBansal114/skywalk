@@ -119,20 +119,7 @@ export default function Header() {
             >
               Pricing
             </Link>
-            <Link
-              href="/subscribe"
-              className="block px-3 py-2 text-gray-700 hover:text-primary-600 font-medium"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Subscribe
-            </Link>
-            <Link
-              href="/book-appointment"
-              className="block px-3 py-2 text-gray-700 hover:text-primary-600 font-medium"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Book Appointment
-            </Link>
+
 
             {isSignedIn ? (
               <>
@@ -151,7 +138,7 @@ export default function Header() {
                   Progress
                 </Link>
                 <div className="px-3 py-2">
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton />
                 </div>
               </>
             ) : (

@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import SignaturePad from '../components/SignaturePad';
 import { FileText, Download, CheckCircle, AlertCircle } from 'lucide-react';
 import axios from 'axios';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 interface FormData {
   fullName: string;
@@ -130,6 +132,7 @@ const SubscribePage: NextPage = () => {
 
   return (
     <>
+      <Header/>
       <Head>
         <title>Sign Service Agreement - Furniture Touch-Up Subscription</title>
         <meta name="description" content="Sign your furniture touch-up subscription service agreement" />
@@ -312,6 +315,7 @@ const SubscribePage: NextPage = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
@@ -12,6 +8,8 @@ import { ArrowLeft, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useGetApi } from '@/lib/apiCallerClient';
 import { useRouter } from 'next/router';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
@@ -81,6 +79,7 @@ const BookAppointmentPage: NextPage = () => {
 
   return (
     <>
+      <Header/>
       <Head>
         <title>Book Appointment - Furniture Touch-Up Service</title>
         <meta
@@ -227,6 +226,7 @@ const BookAppointmentPage: NextPage = () => {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
 };

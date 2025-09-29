@@ -48,13 +48,8 @@ export function calculateCancellationFee(
   // Calculate fee based on months left
   let monthsCharged: number;
   
-  if (monthsLeft >= 3) {
-    // If 3 or more months left, charge for 3 months
-    monthsCharged = 3;
-  } else {
-    // If less than 3 months, charge for remaining months (round up for partial months)
-    monthsCharged = Math.ceil(monthsLeft);
-  }
+  monthsCharged = Math.ceil(12 - monthsLeft);
+  
   
   // Calculate fee amount (plan price * months charged)
   const feeAmount = plan.price * monthsCharged;
