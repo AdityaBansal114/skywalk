@@ -33,16 +33,16 @@ export default function TimelinePage() {
       status: "upcoming",
       link: "/user/form",
     },
+    // {
+    //   id: 2,
+    //   title: "Signature & Agreement",
+    //   description: "Digital signature and service agreement generation",
+    //   icon: FileSignature,
+    //   status: "upcoming",
+    //   link: "/subscribe",
+    // },
     {
       id: 2,
-      title: "Signature & Agreement",
-      description: "Digital signature and service agreement generation",
-      icon: FileSignature,
-      status: "upcoming",
-      link: "/subscribe",
-    },
-    {
-      id: 3,
       title: "Purchase Subscription",
       description: "Complete your subscription purchase with secure payment",
       icon: CreditCard,
@@ -50,7 +50,7 @@ export default function TimelinePage() {
       link: "/user/buy-now",
     },
     {
-      id: 4,
+      id: 3,
       title: "Book Appointment",
       description: "Enjoy your time with Furnish Care",
       icon: CreditCard,

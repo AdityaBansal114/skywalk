@@ -56,16 +56,17 @@ export default function Header() {
               </>
             ) : (
               <>
-                <SignInButton mode="modal">
+                
+                <Link href="/sign-in">
                   <button className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
                     Login
                   </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
+                </Link>
+                <Link href="/sign-up">
                   <button className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors">
                     Sign Up
                   </button>
-                </SignUpButton>
+                </Link>
               </>
             )}
           </nav>
@@ -144,18 +145,18 @@ export default function Header() {
             ) : (
               <>
                 <div className="px-3 py-2">
-                  <SignInButton mode="modal">
+                  <Link href="/sign-in">
                     <button className="w-full text-left text-gray-700 hover:text-primary-600 font-medium">
                       Login
                     </button>
-                  </SignInButton>
+                  </Link>
                 </div>
                 <div className="px-3 py-2">
-                  <SignUpButton mode="modal">
+                  <Link href="/sign-up">
                     <button className="w-full text-left text-primary-600 hover:text-primary-700 font-medium">
                       Sign Up
                     </button>
-                  </SignUpButton>
+                  </Link>
                 </div>
               </>
             )}

@@ -12,7 +12,8 @@ export default function BuyNowPage() {
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  
+  const [agreed, setAgreed] = useState(false);
+
   const getApi = useGetApi();
   const postApi = usePostApi();
 
@@ -22,16 +23,16 @@ export default function BuyNowPage() {
         const res = await getApi(`${BACKEND_URL}/api/progress/get`);
         const { subscriptionType } = res.data;
 
-        if(res.data.currentStep != 3){
-            router.push('/user/progress');
+        if (res.data.currentStep != 2) {
+          router.push('/user/progress');
         }
-        
+
         const planDetails = SUBSCRIPTION_PLANS[subscriptionType as keyof typeof SUBSCRIPTION_PLANS];
         if (!planDetails) {
           setError('Invalid subscription plan');
           return;
         }
-        
+
         setPlan(planDetails);
       } catch (error) {
         console.error('Failed to fetch plan details:', error);
@@ -55,11 +56,10 @@ export default function BuyNowPage() {
       const response = await postApi(`${BACKEND_URL}/api/stripe/create-checkout-session`, {
         planId: plan.id,
         successUrl,
-        cancelUrl
+        cancelUrl,
       });
 
       if (response.status === 200 && response.data.url) {
-        // Redirect to Stripe Checkout
         window.location.href = response.data.url;
       } else {
         throw new Error('Failed to create checkout session');
@@ -74,7 +74,7 @@ export default function BuyNowPage() {
 
   if (!plan) {
     return (
-      <Layout 
+      <Layout
         title="Buy Now - Furnish Care"
         description="Complete your subscription purchase"
       >
@@ -89,7 +89,7 @@ export default function BuyNowPage() {
   }
 
   return (
-    <Layout 
+    <Layout
       title="Buy Now - Furnish Care"
       description="Complete your subscription purchase"
     >
@@ -101,7 +101,7 @@ export default function BuyNowPage() {
               Complete Your {plan.name} Plan Purchase
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              You're just one step away from protecting your furniture with our professional care service
+              You're just one step away from protecting your furniture with our professional care service.
             </p>
           </div>
 
@@ -119,8 +119,16 @@ export default function BuyNowPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {plan.features.map((feature: string, index: number) => (
                 <div key={index} className="flex items-start">
-                  <svg className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5 mr-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span className="text-gray-700">{feature}</span>
                 </div>
@@ -131,20 +139,45 @@ export default function BuyNowPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
               <h3 className="text-lg font-semibold text-blue-900 mb-3">What You're Getting</h3>
               <ul className="space-y-2 text-blue-800">
-                {/* <li>• <strong>12-month subscription</strong> with automatic cancellation after completion</li> */}
-                {/* <li>• <strong>90-day grace period protection</strong> included in every plan</li> */}
                 <li>• <strong>Professional furniture care</strong> by certified technicians</li>
                 <li>• <strong>Flexible scheduling</strong> based on your plan frequency</li>
-                {/* <li>• <strong>Cancel anytime</strong> with a one-time $20 fee</li> */}
               </ul>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div className="flex items-start justify-center mb-6">
+              <label className="flex items-start space-x-2 text-gray-700 text-sm md:text-base">
+                <input
+                  type="checkbox"
+                  id="agreeTerms"
+                  className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  checked={agreed}
+                  onChange={() => setAgreed(!agreed)}
+                />
+                <span>
+                  I agree to the{' '}
+                  <a
+                    href="/user/t&c"
+                    // target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 hover:underline font-medium"
+                  >
+                    Terms and Conditions
+                  </a>
+                </span>
+              </label>
             </div>
 
             {/* Buy Now Button */}
             <div className="text-center">
               <button
                 onClick={handleBuyNow}
-                disabled={loading}
-                className="bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-bold py-4 px-12 rounded-xl text-xl transition-colors duration-200 shadow-lg hover:shadow-xl"
+                disabled={loading || !agreed}
+                className={`${
+                  agreed
+                    ? 'bg-primary-600 hover:bg-primary-700'
+                    : 'bg-gray-300 cursor-not-allowed'
+                } text-white font-bold py-4 px-12 rounded-xl text-xl transition-colors duration-200 shadow-lg hover:shadow-xl`}
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
@@ -155,10 +188,8 @@ export default function BuyNowPage() {
                   `Start ${plan.name} Plan - ${formatStripeAmount(plan.price)}/month`
                 )}
               </button>
-              
-              {error && (
-                <p className="text-red-600 mt-4 text-sm">{error}</p>
-              )}
+
+              {error && <p className="text-red-600 mt-4 text-sm">{error}</p>}
             </div>
           </div>
 
@@ -166,8 +197,16 @@ export default function BuyNowPage() {
           <div className="bg-white rounded-xl border p-6 mb-8">
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <svg className="w-12 h-12 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                <svg
+                  className="w-12 h-12 text-green-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure & Trusted</h3>
@@ -191,3 +230,4 @@ export default function BuyNowPage() {
     </Layout>
   );
 }
+

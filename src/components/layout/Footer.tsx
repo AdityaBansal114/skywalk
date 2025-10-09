@@ -70,11 +70,11 @@ export default function Footer() {
               Legal
             </h3>
             <ul className="space-y-2">
-              <li>
+              {/* <li>
                 <Link href="/user/t&c" className="text-gray-300 hover:text-white transition-colors">
                   Privacy Policy
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link href="/user/t&c" className="text-gray-300 hover:text-white transition-colors">
                   Terms of Service

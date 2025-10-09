@@ -136,9 +136,6 @@ async function handleCheckoutSessionCompleted(session: any) {
       const progress = await db.progress.findUnique({
         where: {
           clerkId
-        },
-        select: {
-          S3key: true
         }
       })
       const plan = SUBSCRIPTION_PLANS[planId as keyof typeof SUBSCRIPTION_PLANS];
@@ -154,7 +151,6 @@ async function handleCheckoutSessionCompleted(session: any) {
           buyDate: new Date(),
           serviceStartTime: serviceStartTime.toISOString(),
           serviceEndTime: serviceEndTime.toISOString(),
-          S3key: progress!.S3key || '',
           servicesLeft: plan.frequency
         }
       })
@@ -163,7 +159,7 @@ async function handleCheckoutSessionCompleted(session: any) {
       sub = existingSub;
     }
 
-    console.log('3')
+    // console.log('3')
 
     const invoiceId: string = session.invoice;
     const invoice = await stripe.invoices.retrieve(invoiceId);
@@ -171,8 +167,8 @@ async function handleCheckoutSessionCompleted(session: any) {
 
 
 
-    console.log('invoiceId', invoiceId);
-    console.log('invoiceLink', invoiceLink);
+    // console.log('invoiceId', invoiceId);
+    // console.log('invoiceLink', invoiceLink);
 
     await db.payment.create({
       data: {
@@ -189,7 +185,7 @@ async function handleCheckoutSessionCompleted(session: any) {
         clerkId
       },
       data:{
-        currentStep: 4
+        currentStep: 3
       }
     })
 

@@ -26,7 +26,7 @@ export default async function POST(req: NextApiRequest, res: NextApiResponse) {
             where: { clerkId },
         });
 
-        if(existing && existing.currentStep == 4){
+        if(existing && existing.currentStep == 3){
             return res.status(400).json({message : "Already existing subscription found"})
         }
 

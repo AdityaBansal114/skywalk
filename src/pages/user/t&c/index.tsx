@@ -1,21 +1,13 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Footer from "@/components/layout/Footer"
+import Header from "@/components/layout/Header"
 
 export default function TermsAndConditions() {
   return (
+    <>
+    <Header/>
     <main className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <Link href="/user/form">
-            <Button
-              variant="outline"
-              className="border-border text-foreground hover:bg-muted bg-transparent"
-            >
-              ← Back to Registration
-            </Button>
-          </Link>
-        </div>
 
         <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
           <CardHeader className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground">
@@ -35,9 +27,6 @@ export default function TermsAndConditions() {
               </svg>
               Terms & Conditions – Furniture Touch-Up Subscription Service
             </CardTitle>
-            <p className="text-primary-foreground/90 mt-2">
-              Last updated: {new Date().toLocaleDateString()}
-            </p>
           </CardHeader>
 
           <CardContent className="p-8 bg-card">
@@ -135,5 +124,7 @@ export default function TermsAndConditions() {
         </Card>
       </div>
     </main>
+    <Footer/>
+    </>
   )
 }

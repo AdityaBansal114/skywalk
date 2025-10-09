@@ -35,7 +35,7 @@ model Subscription{
   serviceStartTime        DateTime
   serviceEndTime          DateTime
   servicesLeft            Int
-  S3key                   String
+  // S3key                   String
   userId                  String
   user                    User                   @relation(fields: [userId],references: [id])
   payments                Payment[]
@@ -64,7 +64,7 @@ model Progress{
   subscriptionType        String
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt
-  S3key                   String?
+  // S3key                   String?
 } 
 
 model Booking{
