@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import DirectBookingLink from '@/components/DirectBookingLink';
 import { usePostApi, useGetApi } from '@/lib/apiCallerClient';
+import AdminNav from '@/components/admin/AdminNav';
 
 interface Appointment {
   id: number;
@@ -310,6 +311,7 @@ const AdminAppointmentsPage: NextPage = () => {
 
   return (
     <>
+      <AdminNav />
       <Head>
         <title>Appointment Management - Admin Dashboard</title>
         <meta name="description" content="Manage appointments, capacity, and availability" />
