@@ -36,6 +36,13 @@ interface DashboardData {
         createdAt: string;
       }>;
     }>;
+    bookings?: Array<{
+      id: string;
+      calcomId: string;
+      completed: boolean;
+      createdAt: string;
+      updatedAt: string;
+    }>;
     payments: Array<{
       id: string;
       invoiceId: string;
@@ -196,6 +203,8 @@ export default function Dashboard() {
   const { user: userProfile, canBookService } = dashboardData;
   const activeSubscriptions = userProfile?.subscriptions?.filter(sub => sub.status === 'active') || [];
   const pastSubscriptions = userProfile?.subscriptions?.filter(sub => sub.status !== 'active') || [];
+  const activeBooking = userProfile?.bookings?.find((b) => !b.completed);
+  const pastBookingsCount = (userProfile?.bookings || []).filter((b) => b.completed).length;
 
   return (
     <Layout title="Dashboard - Furnish Care">
@@ -303,31 +312,33 @@ export default function Dashboard() {
             </div>
 
             <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Account Info</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Address:</span>
-                  <span className="text-gray-900 text-right max-w-[150px] truncate" title={userProfile.address}>
-                    {userProfile.address.length > 20 ? `${userProfile.address.substring(0, 20)}...` : userProfile.address}
-                  </span>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Bookings</h3>
+              {activeBooking ? (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Active Booking ID:</span>
+                    <span className="text-gray-900 text-right max-w-[150px] truncate" title={activeBooking.id}>
+                      {activeBooking.id.substring(0, 10)}...
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Created:</span>
+                    <span className="text-gray-900">{format(new Date(activeBooking.createdAt), 'MMM dd, yyyy')}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Status:</span>
+                    <span className="text-green-700 font-medium">Active</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phone:</span>
-                  <span className="text-gray-900">{userProfile.phone}</span>
+              ) : (
+                <div className="text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Past bookings:</span>
+                    <span className="text-gray-900 font-medium">{pastBookingsCount}</span>
+                  </div>
+                  <p className="text-gray-500 mt-2">You don’t have an active booking right now.</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Email:</span>
-                  <span className="text-gray-900 text-right max-w-[150px] truncate" title={userProfile.email}>
-                    {userProfile.email.length > 20 ? `${userProfile.email.substring(0, 20)}...` : userProfile.email}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">User ID:</span>
-                  <span className="text-gray-900 text-right max-w-[150px] truncate" title={userProfile.id}>
-                    {userProfile.id.substring(0, 8)}...
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

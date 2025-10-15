@@ -71,6 +71,7 @@ model Booking{
   id                      String                @id @default(uuid())
   calcomId                String                @unique
   userId                  String
+  completed               Boolean               @default(false)
   user                    User                  @relation(fields: [userId], references: [id])
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt

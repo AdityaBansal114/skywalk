@@ -33,6 +33,9 @@ export default async function mySubs(
                         include: {
                             subscription: true
                         }
+                    },
+                    bookings: {
+                        orderBy: { createdAt: 'desc' }
                     }
                 }
             })

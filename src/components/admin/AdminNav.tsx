@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Home, CreditCard, Users, CalendarCheck } from "lucide-react";
+import { Home, CreditCard, Users, CalendarCheck, ClipboardList } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin", label: "Home", Icon: Home },
   { href: "/admin/subscriptions", label: "Subscriptions", Icon: CreditCard },
   { href: "/admin/users", label: "Users", Icon: Users },
+  { href: "/admin/bookings", label: "Bookings", Icon: ClipboardList },
   { href: "/admin/appointments", label: "Appointments", Icon: CalendarCheck },
 ];
 

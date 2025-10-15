@@ -33,14 +33,6 @@ export default function TimelinePage() {
       status: "upcoming",
       link: "/user/form",
     },
-    // {
-    //   id: 2,
-    //   title: "Signature & Agreement",
-    //   description: "Digital signature and service agreement generation",
-    //   icon: FileSignature,
-    //   status: "upcoming",
-    //   link: "/subscribe",
-    // },
     {
       id: 2,
       title: "Purchase Subscription",
@@ -49,14 +41,14 @@ export default function TimelinePage() {
       status: "upcoming",
       link: "/user/buy-now",
     },
-    {
-      id: 3,
-      title: "Book Appointment",
-      description: "Enjoy your time with Furnish Care",
-      icon: CreditCard,
-      status: "upcoming",
-      link: "/dashboard",
-    },
+    // {
+    //   id: 3,
+    //   title: "Book Appointment",
+    //   description: "Enjoy your time with Furnish Care",
+    //   icon: CreditCard,
+    //   status: "upcoming",
+    //   link: "/dashboard",
+    // },
   ])
 
   const getApi = useGetApi()
