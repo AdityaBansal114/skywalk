@@ -17,8 +17,8 @@ export default async function GET(
         if (!clerkId) {
             return res.status(401).json({ error: "Unauthenticated" });
         }
-        const isAdmin =  checkAdmin(req);
-        console.log(isAdmin);
+
+        const isAdmin =  await checkAdmin(req);
         if(!isAdmin){
             return res.status(402).json({message: "Not a admin"});
         }

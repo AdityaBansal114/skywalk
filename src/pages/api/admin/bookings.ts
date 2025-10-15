@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { calComClient, isValidDate } from '@/lib/calcom';
+import { checkAdmin } from '@/lib/checkAdmin';
 
 interface BookingsResponse {
   message: string;
@@ -10,14 +11,16 @@ interface BookingsResponse {
     email: string;
     startTime: string;
     endTime: string;
+    phone?: string;
+    address?: string;
   }>;
   error?: string;
 }
 
 interface CalComBooking {
   id: number;
-  startTime: string;
-  endTime: string;
+  start: string;
+  end: string;
   attendees: Array<{ name?: string; email?: string }>;
 }
 
@@ -33,6 +36,11 @@ export default async function handler(
       bookings: [],
       error: 'Only GET method is allowed'
     });
+  }
+
+  const isAdmin = await checkAdmin(req);
+  if(!isAdmin){
+    return res.status(402).json({message: "Not a admin", count: 0, bookings: [], error: "Not a admin"});
   }
 
   try {
@@ -55,16 +63,22 @@ export default async function handler(
  
     const allBookings = await calComClient.getBookings(date as string);
 
+    console.log(allBookings[0].attendees[0].bookingFieldsResponses.location);
 
-    // Transform bookings to match expected format
-    const transformedBookings = allBookings.map((booking: CalComBooking )=> ({
-      id: booking.id,
-      name: booking.attendees[0]?.name || 'Unknown',
-      email: booking.attendees[0]?.email || 'No email',
-      startTime: booking.startTime,
-      endTime: booking.endTime
-    }));
-
+    const transformedBookings = allBookings.flatMap((booking: CalComBooking) =>
+      booking.attendees.map((attendee: any) => ({
+        name: attendee.name,
+        email: attendee.email,
+        startTime: booking.start,
+        endTime: booking.end,
+        phone: attendee.bookingFieldsResponses.attendeePhoneNumber,
+        address: attendee.bookingFieldsResponses.location.optionValue
+      }))
+    );
+    
+    
+    // console.log(transformedBookings);
+    
 
 
     const message = date 

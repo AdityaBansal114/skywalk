@@ -16,7 +16,9 @@ import {
   RefreshCw,
   CheckCircle,
   AlertCircle,
-  Trash2
+  Trash2,
+  Eye,
+  X
 } from 'lucide-react';
 import DirectBookingLink from '@/components/DirectBookingLink';
 import { usePostApi, useGetApi } from '@/lib/apiCallerClient';
@@ -27,6 +29,8 @@ interface Appointment {
   email: string;
   startTime: string;
   endTime: string;
+  phone?: string;
+  address?: string;
 }
 
 interface DailyCapacity {
@@ -79,6 +83,8 @@ const AdminAppointmentsPage: NextPage = () => {
   });
   const [isStatsLoading, setIsStatsLoading] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const postApi = usePostApi();
   const getApi = useGetApi();
 
@@ -173,6 +179,16 @@ const AdminAppointmentsPage: NextPage = () => {
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 5000);
+  };
+
+  const handleViewDetails = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedAppointment(null);
   };
 
   const handleSetCapacity = async (newCapacityValue: number) => {
@@ -557,10 +573,15 @@ const AdminAppointmentsPage: NextPage = () => {
                                   {formatTime(appointment.startTime)} - {formatTime(appointment.endTime)}
                                 </p>
                               </div>
-                              {/* <Button variant="outline" size="sm" disabled={isLoading}>
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Cancel
-                              </Button> */}
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleViewDetails(appointment)}
+                                disabled={isLoading}
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                              </Button>
                             </div>
                           ))}
                         </div>
@@ -650,6 +671,105 @@ const AdminAppointmentsPage: NextPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Appointment Details Modal */}
+        {isModalOpen && selectedAppointment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900">Appointment Details</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCloseModal}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Name</h3>
+                    <p className="text-lg text-gray-900">{selectedAppointment.name}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Email</h3>
+                    <p className="text-lg text-gray-900">{selectedAppointment.email}</p>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Phone</h3>
+                    <p className="text-lg text-gray-900">
+                      {selectedAppointment.phone || 'Not provided'}
+                    </p>
+                  </div>
+                  {/* <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Appointment ID</h3>
+                    <p className="text-lg text-gray-900">#{selectedAppointment.id}</p>
+                  </div> */}
+                </div>
+
+                {/* Time Information */}
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Start Time</h3>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      <p className="text-lg text-gray-900">{formatTime(selectedAppointment.startTime)}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">End Time</h3>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      <p className="text-lg text-gray-900">{formatTime(selectedAppointment.endTime)}</p>
+                    </div>
+                  </div>
+                </div> */}
+
+                {/* Date Information */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Date</h3>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <p className="text-lg text-gray-900">{formatDate(selectedDate)}</p>
+                  </div>
+                </div>
+
+                {/* Address Information */}
+                {selectedAppointment.address && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Address</h3>
+                    <p className="text-lg text-gray-900">{selectedAppointment.address}</p>
+                  </div>
+                )}
+
+                {/* Duration */}
+                {/* <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Duration</h3>
+                  <p className="text-lg text-gray-900">
+                    {Math.round((new Date(selectedAppointment.endTime).getTime() - new Date(selectedAppointment.startTime).getTime()) / (1000 * 60))} minutes
+                  </p>
+                </div> */}
+              </div> 
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+                <Button variant="outline" onClick={handleCloseModal}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

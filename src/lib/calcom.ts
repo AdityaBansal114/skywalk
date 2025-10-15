@@ -129,8 +129,8 @@ class CalComClient {
       const nextDate = new Date(startDate);
       nextDate.setDate(startDate.getDate() + 1);
 
-      console.log(startDate)
-      console.log(nextDate)
+      // console.log(startDate)
+      // console.log(nextDate)
 
       params.afterStart = startDate.toISOString();
       params.beforeEnd = nextDate.toISOString();
@@ -152,7 +152,7 @@ class CalComClient {
       if (!response) {
         throw new Error(response);
       }
-      console.log(response.data.data)
+      // console.log(response.data.data)
 
       return response.data.data || [];
 

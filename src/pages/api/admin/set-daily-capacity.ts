@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { calComClient } from '@/lib/calcom';
+import { checkAdmin } from '@/lib/checkAdmin';
 
 interface SetCapacityRequest {
   capacity: number;
@@ -28,6 +29,10 @@ export default async function handler(
       message: 'Method not allowed',
       error: 'Only POST method is allowed'
     });
+  }
+  const isAdmin = await checkAdmin(req);
+  if(!isAdmin){
+    return res.status(402).json({message: "Not a admin", success: false, error: "Not a admin"});
   }
 
   try {

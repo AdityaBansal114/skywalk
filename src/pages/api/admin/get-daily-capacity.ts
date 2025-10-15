@@ -15,11 +15,10 @@ export default async function GET(req: NextApiRequest, res: NextApiResponse) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    // Check if user is admin
-    // const isAdmin = await checkAdmin();
-    // if (!isAdmin) {
-    //   return res.status(403).json({ error: 'Forbidden: Admin access required' });
-    // }
+    const isAdmin = await checkAdmin(req);
+    if(!isAdmin){
+      return res.status(402).json({message: "Not a admin"});
+    }
 
     const cachedCapacity = await calComClient.getDailyCapacity();
 
