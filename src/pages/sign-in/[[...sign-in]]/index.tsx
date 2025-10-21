@@ -1,5 +1,6 @@
 import { SignIn } from "@clerk/nextjs";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -33,36 +34,41 @@ export default function Page() {
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* 🔹 Animated Clerk Sign-In card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 40 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        whileHover={{ scale: 1.02, y: -5, transition: { duration: 0.3 } }}
-      >
-        <SignIn
-          appearance={{
-            elements: {
-              card: "bg-transparent shadow-none",
-              formButtonPrimary:
-                "bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-base px-5 py-3", // larger buttons
-              formFieldInput:
-                "bg-white text-gray-800 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-base py-3 px-4", // larger inputs
-              headerTitle: "text-gray-900 text-2xl font-semibold",
-              headerSubtitle: "text-gray-600",
-              socialButtonsBlockButton:
-                "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-lg transition-all text-base py-3", // larger social buttons
-              footerActionText: "text-gray-700",
-              footerActionLink:
-                "text-blue-600 hover:text-blue-700 font-medium transition-colors",
-            },
-            layout: {
-              logoPlacement: "inside",
-              socialButtonsVariant: "iconButton",
-            },
-          }}
-        />
-      </motion.div>
+      {/* 🔹 Centered container with auth + Home button matching width */}
+      <div className="relative z-10 inline-block">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 40 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          whileHover={{ scale: 1.02, y: -5, transition: { duration: 0.3 } }}
+        >
+          <SignIn
+            appearance={{
+              elements: {
+                card: "bg-transparent shadow-none",
+                formButtonPrimary:
+                  "bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-base px-5 py-3", // larger buttons
+                formFieldInput:
+                  "bg-white text-gray-800 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-base py-3 px-4", // larger inputs
+                headerTitle: "text-gray-900 text-2xl font-semibold",
+                headerSubtitle: "text-gray-600",
+                socialButtonsBlockButton:
+                  "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-lg transition-all text-base py-3", // larger social buttons
+                footerActionText: "text-gray-700",
+                footerActionLink:
+                  "text-blue-600 hover:text-blue-700 font-medium transition-colors",
+              },
+              layout: {
+                logoPlacement: "inside",
+                socialButtonsVariant: "iconButton",
+              },
+            }}
+          />
+        </motion.div>
+        <Link href="/" className="mt-4 block w-full text-md text-gray-700 hover:underline font-medium">
+          ← go to furnishcare
+        </Link>
+      </div>
     </div>
   );
 }

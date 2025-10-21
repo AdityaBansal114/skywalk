@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next";
-import { checkAdmin } from "@/lib/checkAdmin";
+import { checkAdmin, checkSuperAdmin } from "@/lib/checkAdmin";
 import AdminNav from "@/components/admin/AdminNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -10,15 +10,20 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (!isAdmin) {
     return { redirect: { destination: "/", permanent: false } };
   }
-  return { props: {} };
+  const isSuper = await checkSuperAdmin(ctx.req as any);
+  return { props: { isSuperAdmin: isSuper } };
 };
 
-export default function AdminHome() {
+export default function AdminHome({ isSuperAdmin }: { isSuperAdmin: boolean }) {
   const tiles = [
     { href: "/admin/subscriptions", title: "Subscriptions", desc: "Manage and view all subscriptions" },
     { href: "/admin/users", title: "Users", desc: "Search and view users" },
     { href: "/admin/appointments", title: "Appointments", desc: "View booking appointments" },
   ];
+
+  if (isSuperAdmin) {
+    tiles.push({ href: "/admin/allAdmins", title: "Admins", desc: "Manage admin users (super admin only)" });
+  }
 
   return (
     <div>

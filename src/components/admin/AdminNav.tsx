@@ -10,6 +10,7 @@ const navItems = [
   { href: "/admin/users", label: "Users", Icon: Users },
   { href: "/admin/bookings", label: "Bookings", Icon: ClipboardList },
   { href: "/admin/appointments", label: "Appointments", Icon: CalendarCheck },
+  { href: "/admin/allAdmins", label: "Admins", Icon: Users },
 ];
 
 export default function AdminNav() {
