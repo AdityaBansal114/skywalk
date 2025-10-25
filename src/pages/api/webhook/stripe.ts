@@ -3,11 +3,15 @@ import { buffer } from 'micro';
 import { stripe, SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import { db } from '@/lib/db';
 import calculateServiceTime from '@/lib/serviceTimeCal';
+import { subscriptionPurchaseEmail } from '@/lib/emailTemplates';
+import { sendPromotionalEmail } from '@/lib/emailses';
 export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+const sendFromEmail = process.env.NOTIFICATIONS_FROM_EMAIL || "info@furnishcare.com";
 
 async function handleInvoicePaymentSucceeded(invoice: any) {
   try {
@@ -121,6 +125,8 @@ async function handleCheckoutSessionCompleted(session: any) {
     const clerkId = session.metadata.clerkId;
     const planId = session.metadata.planId;
     const cutomerId = session.customer;
+    const plan = SUBSCRIPTION_PLANS[planId as keyof typeof SUBSCRIPTION_PLANS];
+
 
 
 
@@ -133,13 +139,6 @@ async function handleCheckoutSessionCompleted(session: any) {
 
     if (!existingSub) {
       const { serviceStartTime, serviceEndTime } = calculateServiceTime(new Date());
-      const progress = await db.progress.findUnique({
-        where: {
-          clerkId
-        }
-      })
-      const plan = SUBSCRIPTION_PLANS[planId as keyof typeof SUBSCRIPTION_PLANS];
-      
 
       sub = await db.subscription.create({
         data: {
@@ -189,25 +188,21 @@ async function handleCheckoutSessionCompleted(session: any) {
       }
     })
 
+    const user = await db.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
 
+    const email = subscriptionPurchaseEmail({
+      fullName: user!.fullName,
+      planName: sub.subscriptionType,
+      price: plan.price.toString(),
+      serviceStartTime: sub.serviceStartTime,
+      serviceEndTime: sub.serviceEndTime,
+    })
 
-    // const progress = await db.progress.findUnique({
-    //   where: {
-    //     clerkId
-    //   },
-    //   select: {
-    //     id: true
-    //   }
-    // })
-
-    // if (progress) {
-    //   await db.progress.delete({
-    //     where: {
-    //       id: progress.id
-    //     }
-    //   })
-    // }
-
+    await sendPromotionalEmail(user!.email, sendFromEmail, email.subject, email.html);
 
     console.log('🔄 Checkout session completed:', session.id);
   } catch (error) {
@@ -237,14 +232,14 @@ async function handleCustomerSubscriptionUpdated(subscription: any) {
       return;
     }
 
-    await db.subscription.update({
-      where: {
-        stripeSubscriptionId: subscription.id,
-      },
-      data: {
-        status: mappedStatus,
-      },
-    });
+    // await db.subscription.update({
+    //   where: {
+    //     stripeSubscriptionId: subscription.id,
+    //   },
+    //   data: {
+    //     status: mappedStatus,
+    //   },
+    // });
 
     console.log(`✅ Subscription ${subscription.id} updated to status: ${mappedStatus}`);
   } catch (error) {

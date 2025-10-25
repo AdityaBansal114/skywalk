@@ -11,6 +11,7 @@ const navItems = [
   { href: "/admin/bookings", label: "Bookings", Icon: ClipboardList },
   { href: "/admin/appointments", label: "Appointments", Icon: CalendarCheck },
   { href: "/admin/allAdmins", label: "Admins", Icon: Users },
+  { href: "/admin/notifications", label: "Notifications", Icon: ClipboardList },
 ];
 
 export default function AdminNav() {

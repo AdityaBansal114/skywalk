@@ -1,15 +1,22 @@
 import {calComClient} from "@/lib/calcom";
 import { db } from "@/lib/db";
+import { sendPromotionalEmail } from "@/lib/emailses";
+import { bookingAcknowledgementEmail } from "@/lib/emailTemplates";
 import { NextApiRequest, NextApiResponse } from "next";
+
+const sendFromEmail = process.env.NOTIFICATIONS_FROM_EMAIL || "info@furnishcare.com";
 
 const handler =   async (
     req : NextApiRequest,
     res : NextApiResponse
 ) => {
 
-        const {uid, email} = req.body
+        const {uid, email, location, startTime} = req.body
+
 
         try{
+        
+
             const user = await db.user.findUnique({
                 where:{
                     email
@@ -50,6 +57,15 @@ const handler =   async (
                     userId : user.id
                 }
             })
+
+            const notificationEmail = bookingAcknowledgementEmail({
+                fullName: user.fullName,
+                bookingId: uid,
+                date: startTime,
+                address: location
+            })
+            
+            await sendPromotionalEmail(user.email, sendFromEmail, notificationEmail.subject, notificationEmail.html);
 
             return res.status(200).json({message: "okay"})
         }
