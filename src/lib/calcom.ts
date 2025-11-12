@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from 'axios';
-import { headers } from 'next/headers';
 
 
 // Cal.com API base URL
@@ -106,7 +105,7 @@ class CalComClient {
           }}
     );
 
-    return `${response.data.data.bookingUrl}/service`
+    return `${response.data.data.bookingUrl}/furnishcare-service`
 
   } catch (error: any) {
     console.error("Error generating booking link:", error.response?.data || error.message);

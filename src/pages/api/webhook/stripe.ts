@@ -196,7 +196,7 @@ async function handleCheckoutSessionCompleted(session: any) {
 
     const email = subscriptionPurchaseEmail({
       fullName: user!.fullName,
-      planName: sub.subscriptionType,
+      planName: `${sub.subscriptionType} plan`,
       price: plan.price.toString(),
       serviceStartTime: sub.serviceStartTime,
       serviceEndTime: sub.serviceEndTime,

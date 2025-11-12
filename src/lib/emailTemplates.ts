@@ -1,175 +1,3 @@
-// type MaybeDate = Date | string | undefined;
-
-// function formatDateTime(value: MaybeDate): string | undefined {
-//   if (!value) return undefined;
-//   try {
-//     const d = typeof value === "string" ? new Date(value) : value;
-//     if (isNaN(d.getTime())) return undefined;
-//     return d.toLocaleString(undefined, {
-//       year: "numeric",
-//       month: "short",
-//       day: "2-digit",
-//       hour: "2-digit",
-//       minute: "2-digit",
-//     });
-//   } catch {
-//     return undefined;
-//   }
-// }
-
-// export interface WelcomeEmailParams {
-//   fullName?: string;
-//   supportEmail?: string;
-//   dashboardUrl?: string;
-// }
-
-// export function buildWelcomeEmail(params: WelcomeEmailParams) {
-//   const name = params.fullName || "there";
-//   const supportEmail = params.supportEmail || "support@example.com";
-//   const dashboardUrl = params.dashboardUrl;
-
-//   const subject = `Welcome to FurnishCare — your furniture’s best friend, ${name}!`;
-//   const button = dashboardUrl
-//     ? `<tr><td style="padding-top:16px"><a href="${dashboardUrl}" style="display:inline-block;background:#1D4ED8;color:white;padding:10px 16px;border-radius:6px;text-decoration:none">Go to your dashboard</a></td></tr>`
-//     : "";
-
-//   const html = `
-//     <h1 style="margin:0 0 8px 0;color:#111">Welcome, ${name}! 👋</h1>
-//     <p style="margin:0 0 12px 0;color:#444">Thanks for joining <strong>FurnishCare</strong> — the furniture touchup subscription that keeps your pieces looking their best, month after month.</p>
-//     <p style="margin:0 0 12px 0;color:#444">From scratches and scuffs to water rings and loose joints, our specialists restore beauty and extend the life of the furniture you love.</p>
-//     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tbody>
-//       ${button}
-//       <tr><td style="padding-top:16px;color:#444">
-//         <strong>What can you do next?</strong>
-//         <ul style="margin:8px 0 0 18px;padding:0;color:#444">
-//           <li>Book your first touchup visit</li>
-//           <li>Manage your subscription and preferences</li>
-//           <li>Add notes or photos so our team comes prepared</li>
-//         </ul>
-//       </td></tr>
-//       <tr><td style="padding-top:16px;color:#444">If you need help, reply to this email or contact us at <a href="mailto:${supportEmail}">${supportEmail}</a>.</td></tr>
-//     </tbody></table>
-//   `;
-
-//   return { subject, html };
-// }
-
-// export interface SubscriptionEmailParams {
-//   fullName?: string;
-//   planName: string;
-//   servicesLeft?: number;
-//   price?: string;
-//   serviceStartTime?: MaybeDate;
-//   serviceEndTime?: MaybeDate;
-// }
-
-// export function buildSubscriptionPurchaseEmail(params: SubscriptionEmailParams) {
-//   const name = params.fullName || "there";
-//   const subject = `You're in! ${params.planName} is now active with FurnishCare`;
-//   const start = formatDateTime(params.serviceStartTime);
-//   const end = formatDateTime(params.serviceEndTime);
-//   const dashboardUrl = "https://furnishcare.com/dashboard";
-//   const manageLink = "https://furnishcare.com/dashboard";
-
-//   const rows: string[] = [];
-//   rows.push(`<tr><td style="padding:6px 0"><strong>Plan:</strong></td><td style="padding:6px 0">${params.planName}</td></tr>`);
-//   if (params.price) rows.push(`<tr><td style="padding:6px 0"><strong>Price:</strong></td><td style="padding:6px 0">$${params.price} (monthly)</td></tr>`);
-//   if (typeof params.servicesLeft === "number") rows.push(`<tr><td style="padding:6px 0"><strong>Services left:</strong></td><td style="padding:6px 0">${params.servicesLeft}</td></tr>`);
-//   if (start) rows.push(`<tr><td style="padding:6px 0"><strong>Start:</strong></td><td style="padding:6px 0">${start}</td></tr>`);
-//   if (end) rows.push(`<tr><td style="padding:6px 0"><strong>End:</strong></td><td style="padding:6px 0">${end}</td></tr>`);
-
-//   const manage = manageLink
-//     ? `<a href="${manageLink}" style="display:inline-block;background:#1D4ED8;color:white;padding:10px 16px;border-radius:6px;text-decoration:none">Manage subscription</a>`
-//     : "";
-//   const dashboardBtn = dashboardUrl
-//     ? `<a href="${dashboardUrl}" style="display:inline-block;background:#111827;color:white;padding:10px 16px;border-radius:6px;text-decoration:none">Open dashboard</a>`
-//     : "";
-
-//   const html = `
-//     <h1 style="margin:0 0 8px 0;color:#111">Thanks for your purchase, ${name}! 🎉</h1>
-//     <p style="margin:0 0 12px 0;color:#444">Your <strong>FurnishCare</strong> subscription is now active. Our pros are ready to refresh and revive your furniture with expert touchups on a schedule that suits you.</p>
-//     <p style="margin:0 0 12px 0;color:#444">Here are your plan details:</p>
-//     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
-//       <tbody>
-//         ${rows.join("")}
-//       </tbody>
-//     </table>
-//     ${dashboardBtn ? `<div style="margin-top:16px">${dashboardBtn}</div>` : ""}
-//     ${manage ? `<div style="margin-top:8px">${manage}</div>` : ""}
-//     <p style="margin:16px 0 0 0;color:#444">Tip: Add notes or upload photos before your visit so our specialists bring the perfect tools and finishes.</p>
-//   `;
-
-//   return { subject, html };
-// }
-
-// export interface BookingAcknowledgementParams {
-//   fullName?: string;
-//   bookingId?: string;
-//   date?: MaybeDate; // date/time combined or date
-//   time?: string; // optional human time if date only provided
-//   address?: string;
-// }
-
-// export function buildBookingAcknowledgementEmail(params: BookingAcknowledgementParams) {
-//   const name = params.fullName || "there";
-//   const subject = `You're booked!${params.bookingId ? ` (#${params.bookingId})` : ""} — FurnishCare touchup`;
-//   const when = formatDateTime(params.date) || [params.date, params.time].filter(Boolean).join(" ") || undefined;
-//   const dashboardUrl = "https://furnishcare.com/dashboard";
-
-//   const rows: string[] = [];
-//   if (params.bookingId) rows.push(`<tr><td style=\"padding:6px 0\"><strong>Booking ID:</strong></td><td style=\"padding:6px 0\">${params.bookingId}</td></tr>`);
-//   if (when) rows.push(`<tr><td style=\"padding:6px 0\"><strong>Date & time:</strong></td><td style=\"padding:6px 0\">${when}</td></tr>`);
-//   if (params.address) rows.push(`<tr><td style=\"padding:6px 0\"><strong>Address:</strong></td><td style=\"padding:6px 0\">${params.address}</td></tr>`);
-
-
-//   const dashboardBtn = dashboardUrl
-//     ? `<a href="${dashboardUrl}" style="display:inline-block;background:#111827;color:white;padding:10px 16px;border-radius:6px;text-decoration:none">Open dashboard</a>`
-//     : "";
-
-//   const html = `
-//     <h1 style="margin:0 0 8px 0;color:#111">You're all set, ${name}! ✅</h1>
-//     <p style="margin:0 0 12px 0;color:#444">Your <strong>FurnishCare</strong> touchup appointment is confirmed. We’ll take care of scratches, nicks, loose hardware and more — so your furniture looks cared-for and keeps its value.</p>
-//     <p style="margin:0 0 12px 0;color:#444">Here are your booking details:</p>
-//     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
-//       <tbody>
-//         ${rows.join("")}
-//       </tbody>
-//     </table>
-//     ${dashboardBtn ? `<div style="margin-top:16px">${dashboardBtn}</div>` : ""}
-//     <p style="margin:16px 0 0 0;color:#444">Have specific concerns? Contact us at <a href="mailto:support@furnishcare.com">support@furnishcare.com</a>.</p>
-//   `;
-
-//   return { subject, html };
-// }
-
-
-// export function emailTemplate(content : string) {
-//     return `
-//     <html>
-//       <body style="font-family: Arial, sans-serif; background:#f7f7f7; padding:20px;">
-//         <table width="100%" style="max-width:600px; margin:auto; background:white; border-radius:8px; overflow:hidden;">
-//           <tr>
-//             <td style="background:#1D4ED8; color:white; padding:16px; text-align:center;">
-//               <h2>YourBrand</h2>
-//             </td>
-//           </tr>
-//           <tr>
-//             <td style="padding:24px;">
-//               ${content}
-//             </td>
-//           </tr>
-//           <tr>
-//             <td style="background:#f1f5f9; text-align:center; padding:12px; font-size:12px; color:#555;">
-//               © ${new Date().getFullYear()} YourBrand. All rights reserved.
-//             </td>
-//           </tr>
-//         </table>
-//       </body>
-//     </html>
-//     `;
-//   }
-
-
 
 type MaybeDate = Date | string | undefined;
 
@@ -729,7 +557,7 @@ export function subscriptionEndingEmail(params: SubscriptionEndingParams) {
                   
                   <div style="background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);border-left:4px solid #f59e0b;border-radius:8px;padding:24px;margin:24px 0">
                     <h3 style="margin:0 0 16px 0;color:#78350f;font-size:18px;font-weight:600">
-                      🚨 Why renew now?
+                      🚨 Why choose us?
                     </h3>
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
@@ -800,7 +628,6 @@ export function subscriptionExpiredEmail(params: SubscriptionExpiredParams) {
   const supportEmail = params.supportEmail || "support@furnishcare.com";
 
   const subject = `Your FurnishCare subscription has expired - Renew now to keep your furniture looking great!`;
-
   const renewBtn = `
     <tr>
       <td style="padding-top:32px;text-align:center">
@@ -818,9 +645,6 @@ export function subscriptionExpiredEmail(params: SubscriptionExpiredParams) {
             <tr>
               <td style="padding:20px 16px;font-family:Arial, sans-serif;color:#1a202c;">
                 <div style="text-align:center;padding:24px 0;border-bottom:3px solid #ef4444">
-                  <div style="display:inline-block;background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%);width:64px;height:64px;border-radius:50%;margin-bottom:16px;padding:16px">
-                    <span style="font-size:32px;line-height:32px">💔</span>
-                  </div>
                   <h1 style="margin:0 0 8px 0;color:#1a202c;font-size:28px;font-weight:700;letter-spacing:-0.5px">
                     Your subscription has expired, ${name}
                   </h1>

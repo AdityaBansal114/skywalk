@@ -53,7 +53,7 @@ export default async function Cron() {
         const email = expiredSub.user.email;
         const notificationEmail = subscriptionExpiredEmail({
             fullName: expiredSub.user.fullName,
-            planName: expiredSub.subscriptionType,
+            planName: `${expiredSub.subscriptionType} plan` ,
         })
         await sendPromotionalEmail(email, sendFromEmail, notificationEmail.subject, notificationEmail.html);
     }
@@ -63,7 +63,7 @@ export default async function Cron() {
         const email = sub.user.email;
         const notificationEmail = subscriptionEndingEmail({
             fullName: sub.user.fullName,
-            planName: sub.subscriptionType,
+            planName: `${sub.subscriptionType} plan`,
             remainingDays: daysRemaining,
         })
         await sendPromotionalEmail(email, sendFromEmail, notificationEmail.subject, notificationEmail.html);

@@ -65,8 +65,6 @@ interface BookingsResponse {
 }
 const SCHEDULE_ID = process.env.NEXT_PUBLIC_CALCOM_SCHEDULE_ID;
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string
-const USERNAME = process.env.NEXT_PUBLIC_CALCOM_USERNAME as string
-const EVENT_TYPE_SLUG = process.env.NEXT_PUBLIC_CALCOM_EVENT_TYPE_SLUG as string
 
 const AdminAppointmentsPage: NextPage = () => {
   const [dailyCapacity, setDailyCapacity] = useState<DailyCapacity>({ current: 0 });

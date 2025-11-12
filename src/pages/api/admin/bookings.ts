@@ -63,7 +63,6 @@ export default async function handler(
  
     const allBookings = await calComClient.getBookings(date as string);
 
-    console.log(allBookings[0].attendees[0].bookingFieldsResponses.location);
 
     const transformedBookings = allBookings.flatMap((booking: CalComBooking) =>
       booking.attendees.map((attendee: any) => ({
