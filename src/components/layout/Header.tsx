@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
-import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { useUser, UserButton } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,15 +13,20 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FC</span>
-              </div>
-              <span className="ml-2 text-xl font-semibold text-gray-900">
-                Furnish Care
-              </span>
-            </Link>
-          </div>
+  <Link href="/" className="flex items-center">
+    <Image
+      src="/Logo.png"            // <-- replace with your logo path
+      alt="FurnishCare Logo"
+      width={40}
+      height={40}
+      className="rounded-lg"     // optional styling
+    />
+    <span className="ml-2 text-xl font-semibold text-gray-900">
+      Furnish Care
+    </span>
+  </Link>
+</div>
+
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8 items-center">
@@ -35,6 +41,13 @@ export default function Header() {
               className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
             >
               Pricing
+            </Link>
+
+            <Link
+              href="/blogs"
+              className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+            >
+              Blogs
             </Link>
             
 

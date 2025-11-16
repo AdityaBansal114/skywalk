@@ -9,6 +9,8 @@ const isPublicRoute = createRouteMatcher([
   "/sign-up(.*)",
   "/pricing",
   "/user/t&c",
+  "/blogs",
+  "/blog/(.*)"
 ]);
 
 // Webhook routes (must bypass Clerk)
