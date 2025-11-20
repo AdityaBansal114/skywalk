@@ -23,7 +23,7 @@ const Hero = () => {
       <div className="container mx-auto px-6 lg:px-12 relative z-10 py-12">
         <div className="max-w-4xl mx-auto text-center">
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-playfair font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-playfair font-bold text-white mb-2 leading-tight">
             Furnish Care
           </h1>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-playfair font-bold text-white mb-6 leading-tight">
