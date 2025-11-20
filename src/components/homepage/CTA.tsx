@@ -8,7 +8,7 @@ const CTA = () => {
   const router = useRouter();
   return (
     <section className="relative py-32 overflow-hidden">
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
           src={diningRoomImage}
           alt="Beautiful restored dining room"

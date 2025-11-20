@@ -57,7 +57,7 @@ const plans = [
 const Pricing = () => {
   const router = useRouter();
   return (
-    <section id="pricing" className="py-24 md:py-32 bg-gray-50">
+    <section id="pricing" className="py-24 md:py-32 bg-gray-50 overflow-hidden">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-16 fade-in-up">
           <h2 className="text-4xl md:text-5xl font-sans font-semibold text-black mb-4">

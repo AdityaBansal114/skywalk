@@ -7,7 +7,7 @@ const Hero = () => {
   const router = useRouter();
 
   return (
-    <section className="relative h-[70vh] min-h-[600px] flex items-center justify-center">
+    <section className="relative h-[70vh] min-h-[600px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
           src={heroImage}

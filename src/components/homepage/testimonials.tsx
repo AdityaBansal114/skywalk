@@ -53,7 +53,7 @@ const Testimonials = () => {
   return (
     <section className="py-24 md:py-32 bg-white relative overflow-hidden">
       {/* Subtle background decoration */}
-      <div className="absolute inset-0 opacity-[0.02]">
+      <div className="absolute inset-0 opacity-[0.02] overflow-hidden">
         <div className="absolute top-20 left-10 w-96 h-96 bg-primary-900 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-900 rounded-full blur-3xl" />
       </div>

@@ -10,10 +10,13 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
   }
   
   body {
     @apply text-gray-900 bg-white;
+    overflow-x: hidden;
+    width: 100%;
   }
   :root {
     --background: 0 0% 100%;
