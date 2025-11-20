@@ -9,6 +9,8 @@ Owning fine furniture is more than a matter of style — it's an investment in c
 
 **FurnishCare** offers a more intelligent approach. Designed as a luxury alternative to traditional insurance, it delivers proactive maintenance, expert restoration, and exclusive membership benefits — ensuring every piece remains as exquisite as the day it arrived.
 
+![Alt text](/img3.jpg)
+
 ---
 
 ## **1. Preventive Maintenance, Perfected**

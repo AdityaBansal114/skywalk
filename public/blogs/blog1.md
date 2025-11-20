@@ -2,12 +2,18 @@
 
 ## Introduction: Luxury Furniture Deserves More Than Insurance
 
+
+
+
 Owning high-end furniture is an investment. From handcrafted wooden tables to designer sofas, these pieces are more than just functional — they are a reflection of taste, lifestyle, and personal wealth. Yet, many homeowners rely on traditional furniture insurance, thinking it’s enough to protect their prized possessions.
+
 
 The truth? **Furniture insurance isn’t always enough.** Policies can be expensive, confusing, and slow to respond. They often cover only specific damages and rarely account for the daily wear and tear that can erode the value of your furniture over time.
 
 Enter **FurnishCare** — a luxury furniture care service and subscription-based alternative to furniture insurance. By combining preventive maintenance, repair services, and white-glove care, FurnishCare ensures your furniture remains pristine, protected, and appreciated for years to come.
 
+
+![Alt text](/img1.jpg)
 ---
 
 ## The Limitations of Traditional Furniture Insurance

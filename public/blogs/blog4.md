@@ -1,3 +1,4 @@
+# Why Furniture Insurance Is Outdated — And What Smart Homeowners Use Instead
 
 ## Introduction: The Hidden Gaps in Furniture Insurance
 
@@ -7,6 +8,7 @@ Unfortunately, traditional furniture insurance is designed for accidents, not lo
 
 Many homeowners pay premiums for years only to discover their coverage stops where the most common issues begin. This realization has given rise to a smarter alternative: **subscription-based furniture care plans like FurnishCare**, built to maintain, repair, and preserve furniture year-round.
 
+![Alt text](/img4.jpg)
 ---
 
 ## Why Furniture Insurance Falls Short

@@ -168,10 +168,6 @@ export default function CancelSubscription() {
                       {new Date(feeData.serviceEndTime).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Months Charged:</span>
-                    <span className="font-medium text-gray-900">{feeData.monthsCharged} month{feeData.monthsCharged !== 1 ? 's' : ''}</span>
-                  </div>
                 </div>
               </div>
 
@@ -196,7 +192,7 @@ export default function CancelSubscription() {
                         </svg>
                         <div className="text-sm text-yellow-700">
                           <p className="font-medium">Cancellation Fee</p>
-                          <p>A cancellation fee of {feeData.cancellationFeeFormatted} applied. This fee will be charged immediately upon cancellation.</p>
+                          <p>A cancellation fee of {feeData.cancellationFeeFormatted} (one month's plan cost) will be charged immediately upon cancellation.</p>
                         </div>
                       </div>
                     </div>
@@ -262,7 +258,7 @@ export default function CancelSubscription() {
             </p>
             {feeData?.shouldApplyFee && (
               <p className="text-red-600 font-medium">
-                You will be charged {feeData.cancellationFeeFormatted} as a cancellation fee worth {feeData.monthsCharged} month's cost of plan.
+                You will be charged {feeData.cancellationFeeFormatted} as a cancellation fee (one month's plan cost).
               </p>
             )}
           </div>

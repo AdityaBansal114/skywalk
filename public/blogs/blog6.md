@@ -1,3 +1,5 @@
+# Furniture Insurance vs. Furniture Subscription: A Homeowner's Guide to Smarter Protection
+
 ## Introduction
 
 You insure your car, your home, and your health.  
@@ -15,6 +17,8 @@ Today, you have two choices:
 2. A modern, proactive **furniture care subscription** from FurnishCare  
 
 Let’s break down the key differences to help you decide what truly protects your home, your lifestyle, and your wallet.
+
+![Alt text](/img6.jpg)
 
 ---
 

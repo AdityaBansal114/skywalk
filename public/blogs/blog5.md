@@ -1,3 +1,6 @@
+# Beyond the Coffee Trick: The Ultimate Guide to Erasing Scratches from Wood Furniture (And When to Call a Pro)
+
+## Introduction
 
 That heart-sinking moment is all too familiar — the screech of a chair, the swipe of a pet’s claw, or the accidental bump that leaves an unwelcome scratch across your beautiful wooden furniture.
 
@@ -12,6 +15,7 @@ Before you panic or accept the scratch as permanent “character,” you should 
 
 This guide will help you do exactly that.
 
+![Alt text](/img5.jpg)
 ---
 
 ## Why Popular DIY Hacks Fail You

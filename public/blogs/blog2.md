@@ -11,6 +11,8 @@ And by the time visible damage appears, restoration becomes expensive.
 **FurnishCare** bridges this gap with a subscription-based service focused on **prevention over reaction**.  
 It’s not just coverage — it’s a *philosophy of care*.
 
+![Alt text](/img2.jpg)
+
 ---
 
 ## Understanding the Limits of Traditional Insurance

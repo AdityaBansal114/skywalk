@@ -164,21 +164,6 @@ export default function BlogPostPage() {
             </Link>
           </motion.div>
 
-          {/* Title Section */}
-          <motion.header
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-12"
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              {blog.title}
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl">
-              {blog.description}
-            </p>
-          </motion.header>
-
           {/* Markdown Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

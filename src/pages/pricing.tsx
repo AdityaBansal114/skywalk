@@ -62,64 +62,60 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Pricing Plans */}
+
+      
+
+      {/* Pricing Plans - styled like homepage pricing component */}
       <section className="py-16 bg-white">
         <div className="container-width section-padding">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-10xl mx-auto">
-            {Object.values(SUBSCRIPTION_PLANS).map((plan) => (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-8xl mx-auto">
+            {Object.values(SUBSCRIPTION_PLANS).map((plan, index) => (
               <div
                 key={plan.id}
-                className={`card relative flex flex-col justify-between ${plan.id === 'standard'
-                    ? 'ring-2 ring-primary-500 shadow-xl'
-                    : 'hover:shadow-xl transition-shadow'
-                  }`}
+                className={`relative fade-in-up bg-card rounded-sm p-8 border-2 transition-all duration-500 hover:shadow-xl ${
+                  plan.id === 'standard' ? 'border-primary md:scale-105 shadow-lg' : 'border-border'
+                }`}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div>
                 {plan.id === 'standard' && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-medium">
                       Most Popular
                     </span>
                   </div>
                 )}
 
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold text-gray-900">{formatStripeAmount(plan.price)}</span>
-                    <span className="text-gray-500">/month</span>
+                <div className="mb-6 text-center">
+                  <h3 className="text-2xl font-display font-semibold text-foreground mb-2">
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-baseline justify-center">
+                    <span className="text-5xl font-display font-semibold text-foreground">
+                      {formatStripeAmount(plan.price)}
+                    </span>
+                    <span className="text-muted-foreground ml-2">/month</span>
                   </div>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-sm text-muted-foreground mt-4">
                     {plan.name === "Basic"
                       ? "1 Scheduled service visit per year."
                       : plan.name === "Standard"
-                        ? "Upto 2 Scheduled service visits per year."
+                        ? "Up to 2 scheduled service visits per year."
                         : plan.name === "Premium"
-                          ? "Upto 2 Scheduled service visits per year."
+                          ? "Up to 2 scheduled service visits per year."
                           : plan.name === "Enterprise"
-                            ? "Upto 2 Scheduled service visits per year."
+                            ? "Up to 2 scheduled service visits per year."
                             : ""}
                   </p>
                 </div>
 
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <svg className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                </div>
                 <button
                   onClick={() => handlePlanSelection(plan.id)}
                   disabled={loadingPlan === plan.id}
-                  className={`block w-full text-center py-3 px-4 rounded-xl font-medium transition-colors disabled:opacity-50 ${plan.id === 'standard'
-                      ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                    }`}
+                  className={`w-full mb-8 rounded-xl py-3 px-4 font-medium transition-colors disabled:opacity-50 ${
+                    plan.id === 'standard'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                      : 'border-2 border-border hover:bg-accent hover:text-accent-foreground'
+                  }`}
                 >
                   {loadingPlan === plan.id ? (
                     <div className="flex items-center justify-center">
@@ -128,22 +124,32 @@ export default function Pricing() {
                     </div>
                   ) : (
                     user ? 'Subscribe Now' : 'Get Started'
-
                   )}
                 </button>
+
+                <ul className="space-y-4">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Grace Period Explanation */}
+
       <section className="py-16 bg-gray-50">
         <div className="container-width section-padding">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                90-Day Quality Care Kickstart
+                Quality Care Kickstart
               </h2>
               <p className="text-xl text-gray-600">
                 Every subscription includes comprehensive Furnish Care from day one
